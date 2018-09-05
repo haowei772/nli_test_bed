@@ -18,5 +18,10 @@ config = dotdict({
     'print_every_n_batch': 100,
     'criterion': 'cross_entropy_loss',
     'optimizer': 'adam',
-    'loss_compute': 'simple_loss_compute'
+    'loss_compute': 'simple_loss_compute',
+    'train_embed': True,
+    'apply_weight_embed': True,
+    'positional_encoding': True,
+    'dropout_pe': 0.2,
+    'max_len': 500, # TODO: not implemented yet
 })
