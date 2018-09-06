@@ -10,7 +10,7 @@ from utils.text_utils import tokenize
 class SNLI():
     def __init__(self, config):
         
-        # dirty fix
+        # dirty fix, doesn't work with 'cpu'
         device = config.device
         if device == 'cpu':
             device = -1
@@ -20,7 +20,7 @@ class SNLI():
             tokenize = None
 
         # fields
-        self.TEXT = data.ReversibleField(tokenize=tokenize, lower=True)
+        self.TEXT = data.ReversibleField(batch_first=True, tokenize=tokenize, lower=True)
         self.LABEL = data.ReversibleField(sequential=False, unk_token=None)
 
         # data split
@@ -41,7 +41,7 @@ class SNLI():
         
         self.max_word_len = max([len(w) for w in self.TEXT.vocab.itos])
         config.n_embed = len(self.TEXT.vocab)
-        config.d_out = len(self.LABEL.vocab)
+        config.d_out = len(self.LABEL.vocab) # output size, num of classes
 
 
         

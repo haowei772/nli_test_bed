@@ -28,11 +28,12 @@ class Encoder(nn.Module):
                         bidirectional=config.birnn)
 
     def forward(self, inputs):
-        batch_size = inputs.size()[1]
+        batch_size = inputs.size()[0]
+        inputs = inputs.transpose(0,1) # (seq_len, batch_size, input_size)
         state_shape = self.config.n_cells, batch_size, self.config.d_hidden
         h0 = c0 =  inputs.new_zeros(state_shape)
         outputs, (ht, ct) = self.rnn(inputs, (h0, c0))
-        return ht[-1] if not self.config.birnn else ht[-2:].transpose(0, 1).contiguous().view(batch_size, -1)
+        return ht[-1] if not self.config.birnn else ht[-2:].transpose(0,1).contiguous().view(batch_size, -1)
 
 
 class SNLIClassifier(nn.Module):
@@ -62,6 +63,15 @@ class SNLIClassifier(nn.Module):
             Linear(seq_in_size, config.d_out))
 
     def forward(self, batch):
+        """
+        batch.premise (batch_size, seq_len)
+        batch.hypothesis (batch_size, seq_len)
+        prem_embed (batch_size, seq_len, d_embed)
+        hypo_embed (batch_size, seq_len, d_embed)
+        premise (batch_size, d_hidden)
+        hypothesis (batch_size, d_hidden)
+        scores (batch_size, d_out)
+        """
         prem_embed = self.embed(batch.premise)
         hypo_embed = self.embed(batch.hypothesis)
         if self.config.fix_emb:
