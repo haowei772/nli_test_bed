@@ -1,4 +1,5 @@
-from .snli_classifier import SNLIClassifier
+from .nli import NLI
+
 models = {
-    'snli_classifier': SNLIClassifier
+    'nli': NLI,
 }

@@ -4,14 +4,8 @@ from criteria import criteria
 from optimizers import optimizers
 from loss_computers import loss_computers
 
-class dotdict(dict):	
-	"""dot.notation access to dictionary attributes"""
-	__getattr__ = dict.get
-	__setattr__ = dict.__setitem__
-	__delattr__ = dict.__delitem__
 
-
-def get_model(config):
+def get_model(config, vocab):
 	""" return model object
 	"""
 	if not config.model:
@@ -20,7 +14,7 @@ def get_model(config):
 	if config.model not in models:
 		raise NotImplementedError(f"model {config.model} not implemented")
 
-	return models[config.model](config)
+	return models[config.model](config, vocab)
 
 
 def get_data(config):
@@ -65,4 +59,8 @@ def get_loss_compute(config, criterion, optimizer):
 	return loss_computers[config.loss_compute](config, criterion, optimizer)
 
 
-	
+class dotdict(dict):	
+	"""dot.notation access to dictionary attributes"""
+	__getattr__ = dict.get
+	__setattr__ = dict.__setitem__
+	__delattr__ = dict.__delitem__

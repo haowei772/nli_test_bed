@@ -5,7 +5,7 @@ Borrowed from https://github.com/galsang/BIMPM-pytorch
 from torchtext import data
 from torchtext import datasets
 
-from utils.text_utils import tokenize
+from utils.text_utils import tokenize, add_vocab_vectors
 
 class SNLI():
     def __init__(self, config):
@@ -30,6 +30,10 @@ class SNLI():
         self.TEXT.build_vocab(self.train, self.dev, self.test)
         self.LABEL.build_vocab(self.train)
 
+        # add word vector
+        add_vocab_vectors(self.TEXT, config)
+
+
         # create iterators
         self.train_iter, self.dev_iter, self.test_iter = \
             data.BucketIterator.splits((self.train, self.dev, self.test),
@@ -40,6 +44,8 @@ class SNLI():
                                         )
         
         self.max_word_len = max([len(w) for w in self.TEXT.vocab.itos])
+        self.vocab = self.TEXT.vocab
+
         config.n_embed = len(self.TEXT.vocab)
         config.d_out = len(self.LABEL.vocab) # output size, num of classes
 

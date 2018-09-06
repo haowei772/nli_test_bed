@@ -25,7 +25,7 @@ def main():
 
     # ----- create or load model -----
     print("Loading model")
-    model = get_model(config)
+    model = get_model(config, data.vocab)
     model.to(device)
 
     # ----- create criterion -----

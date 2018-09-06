@@ -1,9 +1,13 @@
 from utils.utils import dotdict
 
 config = dotdict({
-    'model': 'snli_classifier',
+    'model': 'nli',
+    'encoder': 'lstm',
+    'aggregator': 'linear_aggregate',
     'dataset': 'snli',
     'tokenize': False,
+    'word_vectors': 'glove.6B.100d',
+    'vector_cache': '.vector_cache/input_vectors.pt',
     'seed': 42,
     'gpu': 0,
     'epochs': 10,
@@ -21,7 +25,7 @@ config = dotdict({
     'loss_compute': 'simple_loss_compute',
     'train_embed': True,
     'apply_weight_embed': True,
-    'positional_encoding': True,
+    'positional_encoding': False,
     'dropout_pe': 0.2,
     'max_len': 500, # TODO: not implemented yet
 })
