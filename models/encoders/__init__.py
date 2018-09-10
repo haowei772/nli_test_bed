@@ -1,5 +1,7 @@
 from .lstm import LSTM
+from .transformer import Transformer
 
 encoders = {
-    'lstm': LSTM
+    'lstm': LSTM,
+    'transformer': Transformer,
 }

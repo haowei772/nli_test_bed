@@ -1,3 +1,5 @@
+import math
+import torch
 import torch.nn as nn
 from torch.autograd import Variable
 
@@ -14,9 +16,10 @@ class PositionalEncoding(nn.Module):
         
         # Compute the positional encodings once in log space.
         pe = torch.zeros(self.max_len, self.d_model)
-        position = torch.arange(0, self.max_len).unsqueeze(1)
-        div_term = torch.exp(torch.arange(0, self.d_model, 2) *
-                             -(math.log(10000.0) / self.d_model))
+        position = torch.arange(0, self.max_len).unsqueeze(1).float()
+        div_term = torch.arange(0, self.d_model, 2) * -(math.log(10000.0) / self.d_model)
+        div_term = div_term.float()
+        div_term = torch.exp(div_term)
         pe[:, 0::2] = torch.sin(position * div_term)
         pe[:, 1::2] = torch.cos(position * div_term)
         pe = pe.unsqueeze(0)

@@ -12,9 +12,10 @@ class Encoder(nn.Module):
         
         self.encoder = encoders[config.encoder](config)
     
-    def forward(self, x):
+    def forward(self, x, x_embed):
         """
-        x (batch_size, seq_len, d_embed)
+        x (batch_size, seq_len)
+        x_embed (batch_size, seq_len, d_embed)
         output (batch_size, d_hidden)
         """
-        return self.encoder(x)
+        return self.encoder(x, x_embed)
