@@ -27,6 +27,6 @@ class LSTM(nn.Module):
         inputs_embed = inputs_embed.transpose(0,1)
         state_shape = self.config.n_cells, batch_size, self.config.d_hidden
         h0 = c0 =  inputs_embed.new_zeros(state_shape)
-        outputs, (ht, ct) = self.rnn(inputs, (h0, c0))
+        outputs, (ht, ct) = self.rnn(inputs_embed, (h0, c0))
         return ht[-1] if not self.config.birnn else ht[-2:].transpose(0,1).contiguous().view(batch_size, -1)
 
