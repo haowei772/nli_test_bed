@@ -1,9 +1,13 @@
-# nli_test_bed
-Natural Language Inference Test Bed
+# Natural Language Inference Test Bed
 
 # Requirement
 
 # Usage
+
+    pip install -r requirements.txt
+    python -m spacy download en
+    python run.py
+
 
 # Acknowledgment
 - https://github.com/harvardnlp/annotated-transformer
