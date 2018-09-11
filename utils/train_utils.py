@@ -16,6 +16,10 @@ def save_model(model, config, acc, iterations):
         if f != snapshot_path:
             os.remove(f)
 
+def log_temporary(file, line):
+    with open(file, "a") as myfile:
+        myfile.write(line)
+
 
 def get_device_info(config):
     """ get device info
@@ -61,7 +65,9 @@ def run_epoch(epoch, data_iter, model, loss_compute, device, mode='train'):
         # ----- log ----- 
         if i % config.print_every_n_batch == 1:
             elapsed = time.time() - start
-            print(f"Mode: {mode} Epoch: {epoch} Step: {i} Loss: {loss.item()} Accuracy: {acc} Elapsed Time: {elapsed}")
+            line = f"Mode: {mode} Epoch: {epoch} Step: {i} Loss: {loss.item()} Accuracy: {acc} Elapsed Time: {elapsed}\n"
+            print(line)
+            log_temporary(config.log_file, line)
             start = time.time()
 
     print("acc_total before: ", acc_total)

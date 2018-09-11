@@ -1,6 +1,7 @@
 from utils.utils import dotdict
 
 config = dotdict({
+    'mode': 'train',
     'model': 'nli',
     'encoder': 'transformer_inter_attention',
     'aggregator': 'linear_aggregate',
@@ -9,15 +10,16 @@ config = dotdict({
     'word_vectors': 'glove.6B.100d',
     'vector_cache': '.vector_cache/input_vectors.pt',
     'save_path': 'results',
+    'log_file': 'log.txt',
     'siamese': False, # TODO: not implemented yet
     'seed': 42,
     'gpu': 0,
     'epochs': 10,
     'lr': 0.001,
-    'batch_size': 16,
+    'batch_size': 128,
     'd_embed': 100,
     'd_proj': 300,
-    'n_layers': 1,
+    'n_layers': 6,
     'n_cells': 1,
     'd_hidden': 100,
     'd_transformer': 100,
