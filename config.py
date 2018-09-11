@@ -2,7 +2,7 @@ from utils.utils import dotdict
 
 config = dotdict({
     'model': 'nli',
-    'encoder': 'transformer',
+    'encoder': 'transformer_inter_attention',
     'aggregator': 'linear_aggregate',
     'dataset': 'snli',
     'tokenize': False,

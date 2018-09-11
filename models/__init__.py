@@ -1,5 +1,7 @@
 from .nli import NLI
+from .nli_siamese import NLISiamese
 
 models = {
-    'nli': NLI,
+    'nli_siamese': NLISiamese,
+    'nli': NLI
 }

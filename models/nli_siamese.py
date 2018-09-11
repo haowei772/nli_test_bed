@@ -5,10 +5,10 @@ from .encoder import Encoder
 from .positional_encoding import PositionalEncoding
 from .aggregator import Aggregator
 
-class NLI(nn.Module):
+class NLISiamese(nn.Module):
 
     def __init__(self, config, vocab):
-        super(NLI, self).__init__()
+        super(NLISiamese, self).__init__()
 
         # embedding
         self.embed = Embedding(config, vocab)
@@ -26,7 +26,7 @@ class NLI(nn.Module):
 
 
 
-
+    
     def forward(self, batch):
 
         # ----- embedding -----
@@ -40,8 +40,8 @@ class NLI(nn.Module):
 
 
         # ----- encoder -----
-        premise = self.encode(batch.premise, prem_embed, batch.hypothesis, hypo_embed)
-        hypothesis = self.encode(batch.hypothesis, hypo_embed, batch.premise, prem_embed)
+        premise = self.encode(batch.premise, prem_embed)
+        hypothesis = self.encode(batch.hypothesis, hypo_embed)
 
         # ----- aggregator -----
         scores = self.aggregate(premise, hypothesis)

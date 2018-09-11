@@ -25,9 +25,38 @@ class Transformer(nn.Module):
 
         self.pad = 0
     
-    def forward(self, inputs, inputs_embed):
-        inputs_mask = (inputs != self.pad).unsqueeze(-2)
-        outputs = self.encoder(inputs_embed, inputs_mask)
+    def forward(self, x, x_embed):
+        x_mask = (x != self.pad).unsqueeze(-2)
+        outputs = self.encoder(x_embed, x_mask)
+        outputs = torch.mean(outputs, 1)
+        return outputs
+
+
+class TransformerInterAttention(nn.Module):
+    def __init__(self, config):
+        super(TransformerInterAttention, self).__init__()
+
+        c = copy.deepcopy
+
+        # multi head attention
+        attn = MultiHeadedAttention(config)
+
+        # positionwise feed forward
+        ff = PositionwiseFeedForward(config)
+
+        # encoder
+        self.encoder = EncoderInterAttention(
+            config, 
+            EncoderInterAttentionLayer(config, c(attn), c(attn), c(ff)),
+            )
+
+        self.pad = 0
+    
+    def forward(self, x, x_embed, y, y_embed):
+        x_mask = (x != self.pad).unsqueeze(-2)
+        y_mask = (y != self.pad).unsqueeze(-2)
+
+        outputs = self.encoder(x_embed, x_mask, y_embed, y_mask)
         outputs = torch.mean(outputs, 1)
         return outputs
 
@@ -44,6 +73,19 @@ class Encoder(nn.Module):
         "Pass the input (and mask) through each layer in turn."
         for layer in self.layers:
             x = layer(x, mask)
+        return self.norm(x)
+
+class EncoderInterAttention(nn.Module):
+    "Encoder with inter attention"
+    def __init__(self, config, layer):
+        super(EncoderInterAttention, self).__init__()
+        self.layers = clones(layer, config.n_layers)
+        self.norm = LayerNorm(config)
+        
+    def forward(self, x, x_mask, y, y_mask):
+        "Pass the input (and mask) through each layer in turn."
+        for layer in self.layers:
+            x = layer(x, x_mask, y, y_mask)
         return self.norm(x)
 
 
@@ -78,6 +120,7 @@ class SublayerConnection(nn.Module):
         "Apply residual connection to any sublayer with the same size."
         return x + self.dropout(sublayer(self.norm(x)))
 
+
 class EncoderLayer(nn.Module):
     "Encoder is made up of self-attn and feed forward (defined below)"
     def __init__(self, config, self_attn, feed_forward):
@@ -95,6 +138,29 @@ class EncoderLayer(nn.Module):
         "Follow Figure 1 (left) for connections."
         x = self.sublayer[0](x, lambda x: self.self_attn(x, x, x, mask))
         return self.sublayer[1](x, self.feed_forward)
+
+
+class EncoderInterAttentionLayer(nn.Module):
+    """
+    Encoder with inter attention is made up of three sublayers, 
+    self-attn, src-attn, and feed forward (defined below)
+    """
+
+    def __init__(self, config, self_attn, src_attn, feed_forward):
+        super(EncoderInterAttentionLayer, self).__init__()
+        self.dropout = config.dropout_pe 
+        self.size = config.d_transformer
+
+        self.self_attn = self_attn
+        self.src_attn = src_attn
+        self.feed_forward = feed_forward
+        self.sublayer = clones(SublayerConnection(config), 3)
+ 
+    def forward(self, x, x_mask, y, y_mask):
+        "Follow Figure 1 (right) for connections."
+        x = self.sublayer[0](x, lambda x: self.self_attn(x, x, x, x_mask))
+        x = self.sublayer[1](x, lambda x: self.src_attn(x, y, y, y_mask))
+        return self.sublayer[2](x, self.feed_forward)
 
 
 class MultiHeadedAttention(nn.Module):
@@ -167,8 +233,10 @@ def rebatch(pad_idx, batch):
 def attention(query, key, value, mask=None, dropout=None):
     "Compute 'Scaled Dot Product Attention'"
     d_k = query.size(-1)
+
     scores = torch.matmul(query, key.transpose(-2, -1)) \
              / math.sqrt(d_k)
+
     if mask is not None:
         scores = scores.masked_fill(mask == 0, -1e9)
     p_attn = F.softmax(scores, dim = -1)
