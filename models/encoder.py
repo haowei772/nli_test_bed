@@ -1,7 +1,5 @@
 import torch.nn as nn
 
-from inspect import signature
-
 from .encoders import encoders
 
 class Encoder(nn.Module):
@@ -14,10 +12,6 @@ class Encoder(nn.Module):
             raise NotImplementedError(f"encoder '{config.encoder}' not implemented")
         
         self.encoder = encoders[config.encoder](config)
-
-        if 'siamese' not in config.model:
-            assert len(signature(self.encoder).parameters) == 5, \
-                "encoder should expect 4 inputs."
     
     def forward(self, x, x_embed, y=None, y_embed=None):
         """
