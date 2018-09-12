@@ -1,4 +1,5 @@
 import copy
+import seaborn
 import torch.nn as nn
 
 
@@ -22,3 +23,8 @@ class Bottle(nn.Module):
 
 class Linear(Bottle, nn.Linear):
     pass
+
+def draw(data, x, y, ax):
+    seaborn.heatmap(data, 
+                    xticklabels=x, square=True, yticklabels=y, vmin=0.0, vmax=1.0, 
+                    cbar=False, ax=ax)

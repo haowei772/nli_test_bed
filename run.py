@@ -6,10 +6,13 @@ import torch
 import torch.nn as nn
 import torch.optim as O
 
+import matplotlib.pyplot as plt
+
 from config import config
 from utils.train_utils import get_device_info, set_seed, run_epoch, save_model
 from utils.utils import (get_data, get_model, get_criterion, 
-                            get_optimizer, get_loss_compute)
+                            get_optimizer, get_loss_compute, dotdict)
+from utils.text_utils import text_to_var
 
 def main():
     # ----- set seed -----
@@ -41,20 +44,58 @@ def main():
     loss_compute = get_loss_compute(config, criterion, optimizer)
     loss_compute_dev = get_loss_compute(config, criterion, None)
 
-    # ----- train -----
-    print("Training")
-    best_dev_acc = -1
-    for i in range(config.epochs):
-        model.train()
-        run_epoch(i, data.train_iter, model, loss_compute, device, mode='train')
+    # ----- train mode -----
+    if config.mode == 'train':
+        
+        print("Training")
+        best_dev_acc = -1
+        for i in range(config.epochs):
+            model.train()
+            run_epoch(i, data.train_iter, model, loss_compute, device, mode='train')
 
-        # ----- dev -----
+            # ----- dev -----
+            model.eval()
+            with torch.no_grad():
+                dev_acc = run_epoch(i, data.dev_iter, model, loss_compute_dev, device, mode='eval')
+                if dev_acc > best_dev_acc:
+                    best_dev_acc = dev_acc
+                    save_model(model, config, dev_acc, i)
+                
+
+    
+    # ----- test mode -----
+    elif config.mode == 'test':
         model.eval()
         with torch.no_grad():
-            dev_acc = run_epoch(i, data.dev_iter, model, loss_compute_dev, device, mode='eval')
-            if dev_acc > best_dev_acc:
-                best_dev_acc = dev_acc
-                save_model(model, config, dev_acc, i)
+            test_acc = run_epoch(0, data.test_iter, model, loss_compute_dev, device, mode='test')
+    
+    
+    # ----- visualization mode -----
+    elif config.mode == 'visualize':
+        model.eval()
+        while True:
+            premise = input("premise > ")
+            hypothesis = input("hypothesis > ")
+
+            if not premise or not hypothesis:
+                print("Please enter premise and hypothesis")
+                continue
+            
+            premise_var = text_to_var(premise, data.TEXT, config)
+            hypothesis_var = text_to_var(hypothesis, data.TEXT, config)
+            mbatch = dotdict({
+                'premise': premise_var,
+                'hypothesis': hypothesis_var,
+            })
+
+            sent = premise.split()
+            scores = model(mbatch)
+            model.encode.draw_attentions(sent, sent)
+
+
+            
+
+            
 
 if __name__ == "__main__":
     main()

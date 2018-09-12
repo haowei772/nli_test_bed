@@ -4,13 +4,17 @@ import torch
 import torch.nn as nn
 import torch.nn.functional as F
 import numpy as np
+import matplotlib.pyplot as plt
 
-from utils.model_utils import clones
+# from utils.utils import draw
+from utils.model_utils import clones, draw
 
 
 class Transformer(nn.Module):
     def __init__(self, config):
         super(Transformer, self).__init__()
+
+        self.config = config
 
         c = copy.deepcopy
 
@@ -30,11 +34,22 @@ class Transformer(nn.Module):
         outputs = self.encoder(x_embed, x_mask)
         outputs = torch.mean(outputs, 1)
         return outputs
+    
+    def draw_attentions(self, sent1, sent2):
+        for layer in range(len(self.encoder.layers)):
+            fig, axs = plt.subplots(1,self.config.h_transformer, figsize=(20, 10))
+            for h in range(self.config.h_transformer):
+                draw(self.encoder.layers[layer].self_attn.attn[0, h].data, 
+                    sent1, sent2 if h ==0 else [], ax=axs[h])
+            fig.savefig(self.config.save_path + "/" + f"layer_{layer}.png")
+            plt.close(fig)
 
 
 class TransformerInterAttention(nn.Module):
     def __init__(self, config):
         super(TransformerInterAttention, self).__init__()
+
+        self.config = config
 
         c = copy.deepcopy
 
@@ -59,6 +74,15 @@ class TransformerInterAttention(nn.Module):
         outputs = self.encoder(x_embed, x_mask, y_embed, y_mask)
         outputs = torch.mean(outputs, 1)
         return outputs
+    
+    def draw_attentions(self, sent1, sent2):
+        for layer in range(len(self.encoder.layers)):
+            fig, axs = plt.subplots(1,self.config.h_transformer, figsize=(20, 10))
+            for h in range(self.config.h_transformer):
+                draw(self.encoder.layers[layer].self_attn.attn[0, h].data, 
+                    sent1, sent2 if h ==0 else [], ax=axs[h])
+            fig.savefig(self.config.save_path + "/" + f"layer_{layer}.png")
+            plt.close(fig)
 
 
 

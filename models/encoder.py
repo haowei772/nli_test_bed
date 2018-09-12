@@ -23,3 +23,13 @@ class Encoder(nn.Module):
             return self.encoder(x, x_embed, y, y_embed)
         else:
             return self.encoder(x, x_embed)
+    
+    def draw_attentions(self, sent1, sent2):
+        """
+        drawing attention maps
+        """
+        if not hasattr(self.encoder, 'draw_attentions'):
+            print("'draw_attentions' not defined for encoder")
+            return
+        
+        self.encoder.draw_attentions(sent1, sent2)

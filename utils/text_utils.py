@@ -1,6 +1,7 @@
 import os
 import spacy
 import torch
+from torch.autograd import Variable
 
 spacy_en = spacy.load('en')
 
@@ -33,3 +34,12 @@ def makedirs(name):
         else:
             # a different error happened
             raise
+
+def text_to_var(text, field, config):
+    device = config.device
+    if device == 'cpu':
+        device = -1
+    text = field.preprocess(text)
+    src = field.process([text], device, False)
+    return src
+
