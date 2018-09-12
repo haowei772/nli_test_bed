@@ -60,7 +60,7 @@ def run_epoch(epoch, data_iter, model, loss_compute, device, mode='train'):
         n_correct += (torch.max(out, 1)[1].view(batch.label.size()) == batch.label).sum().item()
         n_total += batch.batch_size
         acc = 100. * n_correct/n_total
-        acc_total = acc
+        acc_total += acc
 
         # ----- log ----- 
         if i % config.print_every_n_batch == 1:
