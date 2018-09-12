@@ -42,7 +42,10 @@ class SNLI():
                                                     config.batch_size), 
                                         device=device
                                         )
-        
+        self.train_iter.repeat = False
+        self.dev_iter.repeat = False
+        self.test_iter.repeat = False
+
         self.max_word_len = max([len(w) for w in self.TEXT.vocab.itos])
         self.vocab = self.TEXT.vocab
 
