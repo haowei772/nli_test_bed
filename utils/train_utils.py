@@ -9,8 +9,8 @@ from config import config
 def save_model(model, config, acc, iterations):
     snapshot_prefix = os.path.join(config.save_path, 'best_snapshot')
     snapshot_path = snapshot_prefix + '_acc_{}__iter_{}_model.pt'.format(acc, iterations)
-    makedirs(snapshot_path)
-    
+    makedirs(config.save_path)
+
     # save model, delete previous 'best_snapshot' files
     torch.save(model, snapshot_path)
     for f in glob.glob(snapshot_prefix + '*'):
