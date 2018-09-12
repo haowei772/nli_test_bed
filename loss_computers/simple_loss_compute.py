@@ -8,8 +8,8 @@ class SimpleLossCompute:
         
     def __call__(self, out, batch):
         loss = self.criterion(out, batch.label)
-        loss.backward()
         if self.opt is not None:
+            loss.backward()
             self.opt.step()
             self.opt.optimizer.zero_grad()
         return loss
