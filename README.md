@@ -6,7 +6,7 @@
 
     pip install -r requirements.txt
     python -m spacy download en
-    python run.py
+    python run.py train TRANSFORMER_INTER_ATTENTION
 
 
 # Acknowledgment

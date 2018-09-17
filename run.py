@@ -1,22 +1,21 @@
 import random
-
 import numpy as np
-
 import torch
 import torch.nn as nn
 import torch.optim as O
-
 import matplotlib.pyplot as plt
 
-from config import config
+# from config import config
 from utils.train_utils import get_device_info, set_seed, run_epoch, save_model
-from utils.utils import (get_data, get_model, get_criterion, 
-                            get_optimizer, get_loss_compute, dotdict)
+from utils.utils import *
 from utils.text_utils import text_to_var
 
 def main():
+    # ----- get config -----
+    config = parse_args_get_config()
+
     # ----- set seed -----
-    set_seed()
+    set_seed(config)
 
     # ----- get device -----
     device, n_gpu = get_device_info(config)
@@ -51,7 +50,7 @@ def main():
         best_dev_acc = -1
         for i in range(config.epochs):
             model.train()
-            run_epoch(i, data.train_iter, model, loss_compute, device, mode='train')
+            run_epoch(config, i, data.train_iter, model, loss_compute, device, mode='train')
 
             # ----- dev -----
             model.eval()
@@ -68,7 +67,7 @@ def main():
     elif config.mode == 'test':
         model.eval()
         with torch.no_grad():
-            test_acc = run_epoch(0, data.test_iter, model, loss_compute_dev, device, mode='test')
+            test_acc = run_epoch(config, 0, data.test_iter, model, loss_compute_dev, device, mode='test')
     
 
     # ----- visualization mode -----

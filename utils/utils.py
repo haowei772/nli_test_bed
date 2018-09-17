@@ -1,9 +1,17 @@
+import json
+from argparse import ArgumentParser
+from pprint import pprint
 from models import models
 from datasets import datasets
 from criteria import criteria
 from optimizers import optimizers
 from loss_computers import loss_computers
 
+class dotdict(dict):	
+	"""dot.notation access to dictionary attributes"""
+	__getattr__ = dict.get
+	__setattr__ = dict.__setitem__
+	__delattr__ = dict.__delitem__
 
 def get_model(config, vocab):
 	""" return model object
@@ -12,7 +20,7 @@ def get_model(config, vocab):
 		raise NotImplementedError("'model' not defined in config")
 
 	if config.model not in models:
-		raise NotImplementedError(f"model {config.model} not implemented")
+		raise NotImplementedError("available models: ", [k for k,_ in models.items()])
 
 	return models[config.model](config, vocab)
 
@@ -24,7 +32,7 @@ def get_data(config):
 		raise NotImplementedError("'dataset' not defined in config")
 	
 	if config.dataset not in datasets:
-		raise NotImplementedError(f"dataset {config.dataset} not implemented")
+		raise NotImplementedError("available datasets: ", [k for k,_ in datasets.items()])
 	
 	return datasets[config.dataset](config)
 
@@ -34,7 +42,7 @@ def get_criterion(config):
 		raise NotImplementedError("'criterion' not defined in config")
 	
 	if config.criterion not in criteria:
-		raise NotImplementedError(f"criterion {config.criterion} not implemented")
+		raise NotImplementedError("available criteria: ", [k for k,_ in criteria.items()])
 	
 	return criteria[config.criterion](config)
 
@@ -44,7 +52,7 @@ def get_optimizer(config, model):
 		raise NotImplementedError("'optimizer' not defined in config")
 
 	if config.optimizer not in optimizers:
-		raise NotImplementedError(f"optimizer '{config.optimizer}' not implemented")
+		raise NotImplementedError("available optimizers: ", [k for k,_ in optimizers.items()])
 	
 	return optimizers[config.optimizer](config, model)
 
@@ -54,13 +62,45 @@ def get_loss_compute(config, criterion, optimizer):
 		raise NotImplementedError("'loss_compute' not defined in config")
 	
 	if config.loss_compute not in loss_computers:
-		raise NotImplementedError(f"loss_compute '{config.loss_compute}' not implemented")
+		raise NotImplementedError("available loss_computers: ", [k for k,_ in loss_computers.items()])
 	
 	return loss_computers[config.loss_compute](config, criterion, optimizer)
 
 
-class dotdict(dict):	
-	"""dot.notation access to dictionary attributes"""
-	__getattr__ = dict.get
-	__setattr__ = dict.__setitem__
-	__delattr__ = dict.__delitem__
+def parse_args_get_config():
+	parser = ArgumentParser()
+	parser.add_argument('mode',
+						choices=['train', 'test', 'visualize'],
+						help="pipeline mode")
+	parser.add_argument('config',
+						help='model to be used')
+	parser.add_argument('--gpu',
+						default='0',
+						help='index of GPU to be used (0 is CPU)')
+
+	args = parser.parse_args()
+
+	# ----- load config json file -----
+	with open('config.json', 'r') as f:
+		config = json.load(f)
+
+	if args.config not in config:
+		raise NotImplementedError(f"'{args.config}' not defined in config")
+	
+	config = config[args.config]
+
+	# ----- flattening the config structure -----
+	config_flat = {}
+	for k, v in config.items():
+		for in_k, in_v in v.items():
+    			config_flat[in_k] = in_v
+	config = config_flat
+
+	# ----- add info from argparser -----
+	config.update({
+		'mode': args.mode,
+		'gpu': args.gpu
+	})
+
+	return dotdict(config)
+

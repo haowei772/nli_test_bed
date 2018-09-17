@@ -4,7 +4,6 @@ import time
 import torch
 import glob
 import numpy as np
-from config import config
 
 def save_model(model, config, acc, iterations):
     snapshot_prefix = os.path.join(config.save_path, 'best_snapshot')
@@ -48,7 +47,7 @@ def get_device_info(config):
     return device, n_gpu
 
 
-def set_seed():
+def set_seed(config):
     """ Set random seeds
     """
     random.seed(config.seed)
@@ -57,7 +56,7 @@ def set_seed():
     torch.cuda.manual_seed_all(config.seed)
 
 
-def run_epoch(epoch, data_iter, model, loss_compute, device, mode='train'):
+def run_epoch(config, epoch, data_iter, model, loss_compute, device, mode='train'):
     """ Training function
     """
     start = time.time()
