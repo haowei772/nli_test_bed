@@ -25,7 +25,10 @@ class Transformer(nn.Module):
         ff = PositionwiseFeedForward(config)
 
         # encoder
-        self.encoder = Encoder(config, EncoderLayer(config, c(attn), c(ff)))
+        self.encoder = Encoder(
+            config, 
+            EncoderLayer(config, c(attn), c(ff)),
+            )
 
         self.pad = 0
     
@@ -66,9 +69,10 @@ class TransformerInterAttention(nn.Module):
         ff = PositionwiseFeedForward(config)
 
         # encoder
-        self.encoder = EncoderInterAttention(
+        self.encoder = DoubleEncoderInterAttention(
             config, 
-            DoubleEncoderInterAttentionLayer(config, c(attn), c(attn), c(ff)),
+            EncoderInterAttentionLayer(config, c(attn), c(attn), c(ff)),
+            EncoderLayer(config, c(attn), c(ff)),
             )
 
         self.pad = 0
@@ -114,6 +118,7 @@ class Encoder(nn.Module):
             x = layer(x, mask)
         return self.norm(x)
 
+
 class EncoderInterAttention(nn.Module):
     "Encoder with inter attention"
     def __init__(self, config, layer):
@@ -126,6 +131,7 @@ class EncoderInterAttention(nn.Module):
         for layer in self.layers:
             x = layer(x, x_mask, y, y_mask)
         return self.norm(x)
+
 
 class DoubleEncoderInterAttention(nn.Module):
     "Encoder with inter attention"
