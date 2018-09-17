@@ -9,6 +9,7 @@ config = dotdict({
     'tokenize': False,
     'word_vectors': 'glove.6B.100d',
     'vector_cache': '.vector_cache/input_vectors.pt',
+    'save_model': False,
     'save_path': 'results',
     'log_file': 'log.txt',
     'siamese': False, # TODO: not implemented yet

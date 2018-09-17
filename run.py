@@ -59,7 +59,8 @@ def main():
                 dev_acc = run_epoch(i, data.dev_iter, model, loss_compute_dev, device, mode='eval')
                 if dev_acc > best_dev_acc:
                     best_dev_acc = dev_acc
-                    save_model(model, config, dev_acc, i)
+                    if config.save_model:
+                        save_model(model, config, dev_acc, i)
                 
 
     
