@@ -55,7 +55,7 @@ def main():
             # ----- dev -----
             model.eval()
             with torch.no_grad():
-                dev_acc = run_epoch(i, data.dev_iter, model, loss_compute_dev, device, mode='eval')
+                dev_acc = run_epoch(config, i, data.dev_iter, model, loss_compute_dev, device, mode='eval')
                 if dev_acc > best_dev_acc:
                     best_dev_acc = dev_acc
                     if config.save_model:
