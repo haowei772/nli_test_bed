@@ -5,7 +5,7 @@ import torch.nn as nn
 import torch.nn.functional as F
 import numpy as np
 import matplotlib.pyplot as plt
-
+from time import gmtime, strftime
 # from utils.utils import draw
 from utils.model_utils import clones, draw
 
@@ -30,18 +30,24 @@ class Transformer(nn.Module):
         self.pad = 0
     
     def forward(self, x, x_embed):
+        """
+        x: (batch_size, seq_len)
+        x_embed: (batch_size, seq_len, embed_size)
+        encoder_output: (batch_size, seq_len, embed_size)
+        output: (batch_size, embed_size)
+        """
         x_mask = (x != self.pad).unsqueeze(-2)
-        outputs = self.encoder(x_embed, x_mask)
-        outputs = torch.mean(outputs, 1)
-        return outputs
+        encoder_output = self.encoder(x_embed, x_mask)
+        output = torch.mean(encoder_output, 1)
+        return output
     
-    def draw_attentions(self, sent1, sent2):
+    def draw_self_attentions(self, sent):
         for layer in range(len(self.encoder.layers)):
             fig, axs = plt.subplots(1,self.config.h_transformer, figsize=(20, 10))
             for h in range(self.config.h_transformer):
                 draw(self.encoder.layers[layer].self_attn.attn[0, h].data, 
-                    sent1, sent2 if h ==0 else [], ax=axs[h])
-            fig.savefig(self.config.save_path + "/" + f"layer_{layer}.png")
+                    sent, sent if h ==0 else [], ax=axs[h])
+            fig.savefig(self.config.save_path + "/" + f"{strftime('%H:%M:%S', gmtime())}_self_attn_layer_{layer}.png")
             plt.close(fig)
 
 
@@ -62,7 +68,7 @@ class TransformerInterAttention(nn.Module):
         # encoder
         self.encoder = EncoderInterAttention(
             config, 
-            EncoderInterAttentionLayer(config, c(attn), c(attn), c(ff)),
+            DoubleEncoderInterAttentionLayer(config, c(attn), c(attn), c(ff)),
             )
 
         self.pad = 0
@@ -71,17 +77,26 @@ class TransformerInterAttention(nn.Module):
         x_mask = (x != self.pad).unsqueeze(-2)
         y_mask = (y != self.pad).unsqueeze(-2)
 
-        outputs = self.encoder(x_embed, x_mask, y_embed, y_mask)
-        outputs = torch.mean(outputs, 1)
-        return outputs
+        encoder_output = self.encoder(x_embed, x_mask, y_embed, y_mask)
+        output = torch.mean(encoder_output, 1)
+        return output
+    
+    def draw_self_attentions(self, sent):
+        for layer in range(len(self.encoder.layers)):
+            fig, axs = plt.subplots(1,self.config.h_transformer, figsize=(20, 10))
+            for h in range(self.config.h_transformer):
+                draw(self.encoder.layers[layer].self_attn.attn[0, h].data, 
+                    sent, sent if h ==0 else [], ax=axs[h])
+            fig.savefig(self.config.save_path + "/" + f"{strftime('%H:%M:%S', gmtime())}_self_attn_layer_{layer}.png")
+            plt.close(fig)
     
     def draw_attentions(self, sent1, sent2):
         for layer in range(len(self.encoder.layers)):
             fig, axs = plt.subplots(1,self.config.h_transformer, figsize=(20, 10))
             for h in range(self.config.h_transformer):
-                draw(self.encoder.layers[layer].self_attn.attn[0, h].data, 
+                draw(self.encoder.layers[layer].src_attn.attn[0, h].data, 
                     sent1, sent2 if h ==0 else [], ax=axs[h])
-            fig.savefig(self.config.save_path + "/" + f"layer_{layer}.png")
+            fig.savefig(self.config.save_path + "/" + f"{strftime('%H:%M:%S', gmtime())}_attn_layer_{layer}.png")
             plt.close(fig)
 
 
@@ -110,6 +125,24 @@ class EncoderInterAttention(nn.Module):
         "Pass the input (and mask) through each layer in turn."
         for layer in self.layers:
             x = layer(x, x_mask, y, y_mask)
+        return self.norm(x)
+
+class DoubleEncoderInterAttention(nn.Module):
+    "Encoder with inter attention"
+    def __init__(self, config, layer, layer_second):
+        super(DoubleEncoderInterAttention, self).__init__()
+        self.layers = clones(layer, config.n_layers)
+        self.layers_second = clones(layer_second, config.n_layers)
+        self.norm = LayerNorm(config)
+        
+    def forward(self, x, x_mask, y, y_mask):
+        "Pass the input (and mask) through each layer in turn."
+        for layer in self.layers_second:
+            y = layer(y, y_mask)
+
+        for layer in self.layers:
+            x = layer(x, x_mask, y, y_mask)
+
         return self.norm(x)
 
 
