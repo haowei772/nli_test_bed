@@ -19,7 +19,8 @@ class NLI(nn.Module):
             self.pos_encoding = PositionalEncoding(config)
 
         # encoder
-        self.encode = Encoder(config)
+        self.encode_p = Encoder(config)
+        self.encode_h = Encoder(config)
 
         # aggregator
         self.aggregate = Aggregator(config)
@@ -40,8 +41,10 @@ class NLI(nn.Module):
 
 
         # ----- encoder -----
-        premise = self.encode(batch.premise, prem_embed, batch.hypothesis, hypo_embed)
-        hypothesis = self.encode(batch.hypothesis, hypo_embed, batch.premise, prem_embed)
+        premise = self.encode_p(batch.premise, prem_embed, batch.hypothesis, 
+            hypo_embed)
+        hypothesis = self.encode_h(batch.hypothesis, hypo_embed, batch.premise, 
+            prem_embed)
 
         # ----- aggregator -----
         scores = self.aggregate(premise, hypothesis)

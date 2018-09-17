@@ -69,7 +69,7 @@ def main():
         with torch.no_grad():
             test_acc = run_epoch(0, data.test_iter, model, loss_compute_dev, device, mode='test')
     
-    
+
     # ----- visualization mode -----
     elif config.mode == 'visualize':
         model.eval()
@@ -88,9 +88,13 @@ def main():
                 'hypothesis': hypothesis_var,
             })
 
-            sent = premise.split()
+            sent_p = premise.split()
+            sent_h = hypothesis.split()
+
             scores = model(mbatch)
-            model.encode.draw_attentions(sent, sent)
+
+            model.encode_p.draw_attentions(sent_p, sent_h)
+            model.encode_h.draw_attentions(sent_h, sent_p)
 
 
             
