@@ -28,8 +28,8 @@ class Encoder(nn.Module):
         """
         drawing attention maps
         """
-        if not hasattr(self.encoder, 'draw_attentions'):
-            print("'draw_attentions' not defined for encoder")
-            return
+        if hasattr(self.encoder, 'draw_self_attentions'):
+            self.encoder.draw_self_attentions(sent1)
         
-        self.encoder.draw_attentions(sent1, sent2)
+        if hasattr(self.encoder, 'draw_attentions'):
+            self.encoder.draw_attentions(sent1, sent2)
