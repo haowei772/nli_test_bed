@@ -101,7 +101,8 @@
             "save_model": false,
             "save_path": "results",
             "log_file": "log.txt",
-            "eps": 1e-6
+            "eps": 1e-6,
+            "e": 1e-8
         },
         "DATA": {
             "dataset": "snli",
@@ -112,11 +113,18 @@
             "seed": 42,
             "gpu": 0,
             "epochs": 10,
-            "lr": 0.001,
+            "lr": 6.25e-05,
             "batch_size": 128,
             "criterion": "cross_entropy_loss",
-            "optimizer": "adam",
-            "loss_compute": "simple_loss_compute"
+            "optimizer": "adam_openai",
+            "loss_compute": "simple_loss_compute",
+            "lr_schedule": "warmup_linear",
+            "lr_warmup": 0.002,
+            "b1": 0.9,
+            "b2": 0.999,
+            "l2": 0.01,
+            "vector_l2": "store_true",
+            "max_grad_norm": 1
         },
         "EMBEDDING": {
             "word_vectors": "glove.6B.100d",
@@ -141,7 +149,7 @@
             "dropout_pe": 0.1,
             "attn_pdrop": 0.1,
             "resid_pdrop": 0.1,
-            "afn": "relu"
+            "afn": "gelu"
         }
     }
 }
