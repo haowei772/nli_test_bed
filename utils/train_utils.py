@@ -86,7 +86,7 @@ def run_epoch(config, epoch, data_iter, model, loss_compute, device, mode='train
             log_temporary(config.log_file, line)
             start = time.time()
 
-    print("acc_total before: ", acc_total)
     acc_total = acc_total/len(data_iter)
     print("acc_total: ", acc_total)
+    print("n_correct/n_total*100", n_correct/n_total*100)
     return acc_total
