@@ -17,6 +17,17 @@ class TransformerWInput(nn.Module):
         self.config = config
         self.encoder = TransformerEncoder(self.config)
         self.encoder_w_input = TransformerEncoderWInput(self.config)
+
+        self.init()
+    
+    def init(self):
+        for p in self.encoder.parameters():
+            if p.dim() > 1:
+                nn.init.xavier_uniform_(p)
+        
+        for p in self.encoder_w_input.parameters():
+            if p.dim() > 1:
+                nn.init.xavier_uniform_(p)
     
     def forward(self, x, y):
 
@@ -29,6 +40,13 @@ class Transformer(nn.Module):
         super(Transformer, self).__init__()
         self.config = config
         self.encoder = TransformerEncoder(self.config)
+
+        self.init()
+    
+    def init(self):
+        for p in self.encoder.parameters():
+            if p.dim() > 1:
+                nn.init.xavier_uniform_(p)
     
     def forward(self, x):
 
