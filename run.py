@@ -24,6 +24,7 @@ def main():
     # ----- load data object -----
     print("Loading data")
     data = get_data(config)
+    config['n_updates_total']=len(data.train_iter) * config.epochs
 
     # ----- create or load model -----
     print("Loading model")
