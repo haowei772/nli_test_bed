@@ -1,10 +1,8 @@
 from .lstm import LSTM
-from .transformer import Transformer, TransformerInterAttention
-from .transformer1 import Transformer1
+from .transformer import Transformer, TransformerWInput
 
 encoders = {
     'lstm': LSTM,
     'transformer': Transformer,
-    'transformer1': Transformer1,
-    'transformer_inter_attention': TransformerInterAttention
+    'transformer_w_input': TransformerWInput,
 }

@@ -13,16 +13,16 @@ class Encoder(nn.Module):
         
         self.encoder = encoders[config.encoder](config)
     
-    def forward(self, x, x_embed, y=None, y_embed=None):
+    def forward(self, x, y=None):
         """
         x (batch_size, seq_len)
         x_embed (batch_size, seq_len, d_embed)
         output (batch_size, d_hidden)
         """
-        if y is not None and y_embed is not None:
-            return self.encoder(x, x_embed, y, y_embed)
+        if y is not None:
+            return self.encoder(x, y)
         else:
-            return self.encoder(x, x_embed)
+            return self.encoder(x)
     
     def draw_attentions(self, sent1, sent2):
         """

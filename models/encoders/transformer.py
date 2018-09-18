@@ -5,304 +5,281 @@ import torch.nn as nn
 import torch.nn.functional as F
 import numpy as np
 import matplotlib.pyplot as plt
+
+from torch.nn.parameter import Parameter
 from time import gmtime, strftime
 # from utils.utils import draw
 from utils.model_utils import clones, draw
 
+class TransformerWInput(nn.Module):
+    def __init__(self, config):
+        super(TransformerWInput, self).__init__()
+        self.config = config
+        self.encoder = TransformerEncoder(self.config)
+        self.encoder_w_input = TransformerEncoderWInput(self.config)
+    
+    def forward(self, x, y):
+
+        x_encoded = self.encoder(x)
+        y_attn_over_x_encoded = self.encoder_w_input(y, x)
+        output = torch.mean(y_attn_over_x_encoded, 1)
+        return output
 
 class Transformer(nn.Module):
     def __init__(self, config):
         super(Transformer, self).__init__()
-
         self.config = config
-
-        c = copy.deepcopy
-
-        # multi head attention
-        attn = MultiHeadedAttention(config)
-
-        # positionwise feed forward
-        ff = PositionwiseFeedForward(config)
-
-        # encoder
-        self.encoder = Encoder(
-            config, 
-            EncoderLayer(config, c(attn), c(ff)),
-            )
-
-        self.pad = 0
+        self.encoder = TransformerEncoder(self.config)
     
-    def forward(self, x, x_embed):
-        """
-        x: (batch_size, seq_len)
-        x_embed: (batch_size, seq_len, embed_size)
-        encoder_output: (batch_size, seq_len, embed_size)
-        output: (batch_size, embed_size)
-        """
-        x_mask = (x != self.pad).unsqueeze(-2)
-        encoder_output = self.encoder(x_embed, x_mask)
-        output = torch.mean(encoder_output, 1)
+    def forward(self, x):
+
+        x_encoded = self.encoder(x)
+        output = torch.mean(x_encoded, 1)
         return output
-    
-    def draw_self_attentions(self, sent):
-        for layer in range(len(self.encoder.layers)):
-            fig, axs = plt.subplots(1,self.config.h_transformer, figsize=(20, 10))
-            for h in range(self.config.h_transformer):
-                draw(self.encoder.layers[layer].self_attn.attn[0, h].data, 
-                    sent, sent if h ==0 else [], ax=axs[h])
-            fig.savefig(self.config.save_path + "/" + f"{strftime('%H:%M:%S', gmtime())}_self_attn_layer_{layer}.png")
-            plt.close(fig)
 
 
-class TransformerInterAttention(nn.Module):
+class TransformerEncoderWInput(nn.Module):
     def __init__(self, config):
-        super(TransformerInterAttention, self).__init__()
+        super(TransformerEncoderWInput, self).__init__()
 
         self.config = config
 
         c = copy.deepcopy
 
-        # multi head attention
-        attn = MultiHeadedAttention(config)
+        block = BlockWInput(config, scale=True)
 
-        # positionwise feed forward
-        ff = PositionwiseFeedForward(config)
-
-        # encoder
-        self.encoder = DoubleEncoderInterAttention(
-            config, 
-            EncoderInterAttentionLayer(config, c(attn), c(attn), c(ff)),
-            EncoderLayer(config, c(attn), c(ff)),
-            )
-
-        self.pad = 0
+        self.layers = clones(block, config.n_layers)
     
-    def forward(self, x, x_embed, y, y_embed):
-        x_mask = (x != self.pad).unsqueeze(-2)
-        y_mask = (y != self.pad).unsqueeze(-2)
+    def forward(self, x, y):
+        """
+        x: (batch_size, seq_len, embed_size)
+        y: (batch_size, seq_len, embed_size)
+        h: (batch_size, seq_len, embed_size)
+        """
 
-        encoder_output = self.encoder(x_embed, x_mask, y_embed, y_mask)
-        output = torch.mean(encoder_output, 1)
-        return output
+        h = x
+        for block in self.layers:
+            h = block(h, y)
+
+        return h
+
+
+class TransformerEncoder(nn.Module):
+    def __init__(self, config):
+        super(TransformerEncoder, self).__init__()
+
+        self.config = config
+
+        c = copy.deepcopy
+
+        block = Block(config, scale=True)
+
+        self.layers = clones(block, config.n_layers)
     
-    def draw_self_attentions(self, sent):
-        for layer in range(len(self.encoder.layers)):
-            fig, axs = plt.subplots(1,self.config.h_transformer, figsize=(20, 10))
-            for h in range(self.config.h_transformer):
-                draw(self.encoder.layers[layer].self_attn.attn[0, h].data, 
-                    sent, sent if h ==0 else [], ax=axs[h])
-            fig.savefig(self.config.save_path + "/" + f"{strftime('%H:%M:%S', gmtime())}_self_attn_layer_{layer}.png")
-            plt.close(fig)
+    def forward(self, x):
+        """
+        x: (batch_size, seq_len, embed_size)
+        h: (batch_size, seq_len, embed_size)
+        """
+        
+        h = x
+        for block in self.layers:
+            h = block(h)
+
+        return h
     
-    def draw_attentions(self, sent1, sent2):
-        for layer in range(len(self.encoder.layers)):
-            fig, axs = plt.subplots(1,self.config.h_transformer, figsize=(20, 10))
-            for h in range(self.config.h_transformer):
-                draw(self.encoder.layers[layer].src_attn.attn[0, h].data, 
-                    sent1, sent2 if h ==0 else [], ax=axs[h])
-            fig.savefig(self.config.save_path + "/" + f"{strftime('%H:%M:%S', gmtime())}_attn_layer_{layer}.png")
-            plt.close(fig)
+    # def draw_self_attentions(self, sent):
+    #     for layer in range(len(self.encoder.layers)):
+    #         fig, axs = plt.subplots(1,self.config.h_transformer, figsize=(20, 10))
+    #         for h in range(self.config.h_transformer):
+    #             draw(self.encoder.layers[layer].self_attn.attn[0, h].data, 
+    #                 sent, sent if h ==0 else [], ax=axs[h])
+    #         fig.savefig(self.config.save_path + "/" + f"{strftime('%H:%M:%S', gmtime())}_self_attn_layer_{layer}.png")
+    #         plt.close(fig)
 
 
 
-class Encoder(nn.Module):
-    "Core encoder is a stack of N layers"
-    def __init__(self, config, layer):
-        super(Encoder, self).__init__()
-        self.layers = clones(layer, config.n_layers)
-        self.norm = LayerNorm(config)
-        
-    def forward(self, x, mask):
-        "Pass the input (and mask) through each layer in turn."
-        for layer in self.layers:
-            x = layer(x, mask)
-        return self.norm(x)
+def gelu(x):
+    return 0.5 * x * (1 + torch.tanh(math.sqrt(2 / math.pi) * (x + 0.044715 * torch.pow(x, 3))))
 
 
-class EncoderInterAttention(nn.Module):
-    "Encoder with inter attention"
-    def __init__(self, config, layer):
-        super(EncoderInterAttention, self).__init__()
-        self.layers = clones(layer, config.n_layers)
-        self.norm = LayerNorm(config)
-        
-    def forward(self, x, x_mask, y, y_mask):
-        "Pass the input (and mask) through each layer in turn."
-        for layer in self.layers:
-            x = layer(x, x_mask, y, y_mask)
-        return self.norm(x)
+def swish(x):
+    return x * torch.sigmoid(x)
 
 
-class DoubleEncoderInterAttention(nn.Module):
-    "Encoder with inter attention"
-    def __init__(self, config, layer, layer_second):
-        super(DoubleEncoderInterAttention, self).__init__()
-        self.layers = clones(layer, config.n_layers)
-        self.layers_second = clones(layer_second, config.n_layers)
-        self.norm = LayerNorm(config)
-        
-    def forward(self, x, x_mask, y, y_mask):
-        "Pass the input (and mask) through each layer in turn."
-        for layer in self.layers_second:
-            y = layer(y, y_mask)
-
-        for layer in self.layers:
-            x = layer(x, x_mask, y, y_mask)
-
-        return self.norm(x)
+ACT_FNS = {
+    'relu': nn.ReLU,
+    'swish': swish,
+    'gelu': gelu
+}
 
 
 class LayerNorm(nn.Module):
-    "Construct a layernorm module (See citation for details)."
-    def __init__(self, config):
+    "Construct a layernorm module in the OpenAI style (epsilon inside the square root)."
+
+    def __init__(self, n_state, e=1e-5):
         super(LayerNorm, self).__init__()
-        features = config.d_transformer
-        self.a_2 = nn.Parameter(torch.ones(features))
-        self.b_2 = nn.Parameter(torch.zeros(features))
-        self.eps = config.eps
+        self.g = nn.Parameter(torch.ones(n_state))
+        self.b = nn.Parameter(torch.zeros(n_state))
+        self.e = e
 
     def forward(self, x):
-        mean = x.mean(-1, keepdim=True)
-        std = x.std(-1, keepdim=True)
-        return self.a_2 * (x - mean) / (std + self.eps) + self.b_2
-    
-
-class SublayerConnection(nn.Module):
-    """
-    A residual connection followed by a layer norm.
-    Note for code simplicity the norm is first as opposed to last.
-    """
-    def __init__(self, config):
-        super(SublayerConnection, self).__init__()
-        dropout = config.dropout_pe
-
-        self.norm = LayerNorm(config)
-        self.dropout = nn.Dropout(dropout)
-
-    def forward(self, x, sublayer):
-        "Apply residual connection to any sublayer with the same size."
-        return x + self.dropout(sublayer(self.norm(x)))
+        u = x.mean(-1, keepdim=True)
+        s = (x - u).pow(2).mean(-1, keepdim=True)
+        x = (x - u) / torch.sqrt(s + self.e)
+        return self.g * x + self.b
 
 
-class EncoderLayer(nn.Module):
-    "Encoder is made up of self-attn and feed forward (defined below)"
-    def __init__(self, config, self_attn, feed_forward):
-        super(EncoderLayer, self).__init__()
+class Conv1D(nn.Module):
+    def __init__(self, nf, rf, nx):
+        super(Conv1D, self).__init__()
+        self.rf = rf
+        self.nf = nf
+        if rf == 1:  # faster 1x1 conv
+            w = torch.empty(nx, nf)
+            nn.init.normal_(w, std=0.02)
+            self.w = Parameter(w)
+            self.b = Parameter(torch.zeros(nf))
+        else:  # was used to train LM
+            raise NotImplementedError
 
-        dropout = config.dropout_pe
-        size = config.d_transformer
-
-        self.self_attn = self_attn
-        self.feed_forward = feed_forward
-        self.sublayer = clones(SublayerConnection(config), 2)
-        self.size = size
-
-    def forward(self, x, mask):
-        "Follow Figure 1 (left) for connections."
-        x = self.sublayer[0](x, lambda x: self.self_attn(x, x, x, mask))
-        return self.sublayer[1](x, self.feed_forward)
-
-
-class EncoderInterAttentionLayer(nn.Module):
-    """
-    Encoder with inter attention is made up of three sublayers, 
-    self-attn, src-attn, and feed forward (defined below)
-    """
-
-    def __init__(self, config, self_attn, src_attn, feed_forward):
-        super(EncoderInterAttentionLayer, self).__init__()
-        self.dropout = config.dropout_pe 
-        self.size = config.d_transformer
-
-        self.self_attn = self_attn
-        self.src_attn = src_attn
-        self.feed_forward = feed_forward
-        self.sublayer = clones(SublayerConnection(config), 3)
- 
-    def forward(self, x, x_mask, y, y_mask):
-        "Follow Figure 1 (right) for connections."
-        x = self.sublayer[0](x, lambda x: self.self_attn(x, x, x, x_mask))
-        x = self.sublayer[1](x, lambda x: self.src_attn(x, y, y, y_mask))
-        return self.sublayer[2](x, self.feed_forward)
+    def forward(self, x):
+        if self.rf == 1:
+            size_out = x.size()[:-1] + (self.nf,)
+            x = torch.addmm(self.b, x.view(-1, x.size(-1)), self.w)
+            x = x.view(*size_out)
+        else:
+            raise NotImplementedError
+        return x
 
 
-class MultiHeadedAttention(nn.Module):
-    def __init__(self, config):
-        "Take in model size and number of heads."
-        super(MultiHeadedAttention, self).__init__()
-
-        h = config.h_transformer
-        d_model = config.d_transformer
-        dropout = config.dropout_pe
-
-        assert d_model % h == 0
-        # We assume d_v always equals d_k
-        self.d_k = d_model // h
-        self.h = h
-        self.linears = clones(nn.Linear(d_model, d_model), 4)
+class Attention(nn.Module):
+    def __init__(self, nx, cfg, scale=False):
+        super(Attention, self).__init__()
+        n_state = nx  # in Attention: n_state=768 (nx=d_embed)
+        # [switch nx => n_state from Block to Attention to keep identical to TF implem]
+        assert n_state % cfg.n_head == 0
+        self.n_head = cfg.n_head
+        self.split_size = n_state
+        self.scale = scale
+        self.c_attn = Conv1D(n_state * 3, 1, nx)
+        self.c_proj = Conv1D(n_state, 1, nx)
+        self.attn_dropout = nn.Dropout(cfg.attn_pdrop)
+        self.resid_dropout = nn.Dropout(cfg.resid_pdrop)
         self.attn = None
-        self.dropout = nn.Dropout(p=dropout)
-        
-    def forward(self, query, key, value, mask=None):
-        "Implements Figure 2"
-        if mask is not None:
-            # Same mask applied to all h heads.
-            mask = mask.unsqueeze(1)
-        nbatches = query.size(0)
-        
-        # 1) Do all the linear projections in batch from d_model => h x d_k 
-        query, key, value = \
-            [l(x).view(nbatches, -1, self.h, self.d_k).transpose(1, 2)
-             for l, x in zip(self.linears, (query, key, value))]
 
-        # 2) Apply attention on all the projected vectors in batch. 
-        x, self.attn = attention(query, key, value, mask=mask, 
-                                 dropout=self.dropout)
-        
-        # 3) "Concat" using a view and apply a final linear. 
-        x = x.transpose(1, 2).contiguous() \
-             .view(nbatches, -1, self.h * self.d_k)
-        return self.linears[-1](x)
+    def _attn(self, q, k, v):
+        w = torch.matmul(q, k)
+        if self.scale:
+            w = w / math.sqrt(v.size(-1))
+        # w = w * self.b + -1e9 * (1 - self.b)  # TF implem method: mask_attn_weights
+        w = nn.Softmax(dim=-1)(w)
+        w = self.attn_dropout(w)
+        return torch.matmul(w, v), w
 
-class PositionwiseFeedForward(nn.Module):
-    "Implements FFN equation."
-    def __init__(self, config):
-        super(PositionwiseFeedForward, self).__init__()
-        d_model = config.d_transformer
-        d_ff = config.d_ff_transformer
-        dropout = config.dropout_pe
-        self.w_1 = nn.Linear(d_model, d_ff)
-        self.w_2 = nn.Linear(d_ff, d_model)
-        self.dropout = nn.Dropout(dropout)
+    def merge_heads(self, x):
+        x = x.permute(0, 2, 1, 3).contiguous()
+        new_x_shape = x.size()[:-2] + (x.size(-2) * x.size(-1),)
+        return x.view(*new_x_shape)  # in Tensorflow implem: fct merge_states
+
+    def split_heads(self, x, k=False):
+        new_x_shape = x.size()[:-1] + (self.n_head, x.size(-1) // self.n_head)
+        x = x.view(*new_x_shape)  # in Tensorflow implem: fct split_states
+        if k:
+            return x.permute(0, 2, 3, 1)
+        else:
+            return x.permute(0, 2, 1, 3)
+
+    def forward(self, query, key=None, value=None):
+
+        if key is None or value is None:
+            query = self.c_attn(query)
+            query, key, value = query.split(self.split_size, dim=2)
+
+        query = self.split_heads(query)
+        key = self.split_heads(key, k=True)
+        value = self.split_heads(value)
+        a, self.attn = self._attn(query, key, value)
+        a = self.merge_heads(a)
+        a = self.c_proj(a)
+        a = self.resid_dropout(a)
+        return a
+
+
+class MLP(nn.Module):
+    def __init__(self, n_state, cfg):  # in MLP: n_state=3072 (4 * d_embed)
+        super(MLP, self).__init__()
+        nx = cfg.d_embed
+        self.c_fc = Conv1D(n_state, 1, nx)
+        self.c_proj = Conv1D(nx, 1, n_state)
+        self.act = ACT_FNS[cfg.afn]
+        self.dropout = nn.Dropout(cfg.resid_pdrop)
 
     def forward(self, x):
-        return self.w_2(self.dropout(F.relu(self.w_1(x))))
+        h = self.act(self.c_fc(x))
+        h2 = self.c_proj(h)
+        return self.dropout(h2)
 
 
-class Batch:
-    "Object for holding a batch of data with mask during training."
-    def __init__(self, premise, hypothesis, pad=0):
-        self.premise = premise
-        self.premise = (premise != pad).unsqueeze(-2)
-        self.hypothesis = hypothesis
-        self.hypothesis = (hypothesis != pad).unsqueeze(-2)
+class Block(nn.Module):
+    def __init__(self, cfg, scale=False):
+        super(Block, self).__init__()
+        nx = cfg.d_embed
+        self.attn = Attention(nx, cfg, scale)
+        self.ln_1 = LayerNorm(nx)
+        self.mlp = MLP(4 * nx, cfg)
+        self.ln_2 = LayerNorm(nx)
 
-def rebatch(pad_idx, batch):
-    "Fix order in torchtext to match ours"
-    src, trg = batch.src.transpose(0, 1), batch.trg.transpose(0, 1)
-    return Batch(src, trg, pad_idx)
+    def forward(self, x):
+        a = self.attn(x)
+        n = self.ln_1(x + a)
+        m = self.mlp(n)
+        h = self.ln_2(n + m)
+        return h
+
+class BlockWInput(nn.Module):
+    def __init__(self, cfg, scale=False):
+        super(BlockWInput, self).__init__()
+        nx = cfg.d_embed
+        self.attn = Attention(nx, cfg, scale)
+        self.attn_w_input = Attention(nx, cfg, scale)
+        self.ln_1 = LayerNorm(nx)
+        self.mlp = MLP(4 * nx, cfg)
+        self.ln_2 = LayerNorm(nx)
+        self.ln_3 = LayerNorm(nx)
+
+    def forward(self, x, y):
+        a1 = self.attn(x)
+        n1 = self.ln_1(x + a1)
+
+        a2 = self.attn_w_input(n1, y, y)
+        n2 = self.ln_2(n1 + a2)
+
+        m = self.mlp(n2)
+        h = self.ln_2(n2 + m)
+
+        return h
 
 
-def attention(query, key, value, mask=None, dropout=None):
-    "Compute 'Scaled Dot Product Attention'"
-    d_k = query.size(-1)
+class ClfHead(nn.Module):
+    """Classification Head for the transformer
 
-    scores = torch.matmul(query, key.transpose(-2, -1)) \
-             / math.sqrt(d_k)
+    TODO: test this class."""
+    def __init__(self, clf_token, cfg, n_class):
+        super(ClfHead, self).__init__()
+        self.d_embed = cfg.d_embed
+        self.clf_token = clf_token
+        self.dropout = nn.Dropout(cfg.clf_pdrop)
+        self.linear = nn.Linear(cfg.d_embed, n_class)
 
-    if mask is not None:
-        scores = scores.masked_fill(mask == 0, -1e9)
-    p_attn = F.softmax(scores, dim = -1)
-    if dropout is not None:
-        p_attn = dropout(p_attn)
-    return torch.matmul(p_attn, value), p_attn
+        nn.init.normal_(self.linear.weight, std = 0.02)
+        nn.init.normal_(self.linear.bias, 0)
+
+    def forward(self, h, x):
+        clf_h = h.view(-1, self.d_embed)
+        flat = x[..., 0].contiguous().view(-1)
+        clf_h = clf_h[flat == self.clf_token, :]
+        clf_h = self.dropout(clf_h)
+        clf_logits = self.linear(clf_h)
+
+        return clf_logits

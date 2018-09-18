@@ -41,8 +41,8 @@ class NLISiamese(nn.Module):
             hypo_embed = self.pos_encoding(hypo_embed)
 
         # ----- encoder -----
-        premise = self.encode_p(batch.premise, prem_embed)
-        hypothesis = self.encode_h(batch.hypothesis, hypo_embed)
+        premise = self.encode_p(prem_embed)
+        hypothesis = self.encode_h(hypo_embed)
 
         # ----- aggregator -----
         scores = self.aggregate(premise, hypothesis)

@@ -44,7 +44,7 @@
             "dropout_pe": 0.2
         }
     },
-    "TRANSFORMER_INTER_ATTENTION": {
+    "TRANSFORMER_SIAMESE": {
         "MISC": {
             "print_every_n_batch": 100,
             "eval_every_n_batch": 100,
@@ -78,7 +78,7 @@
         },
         "MODEL": {
             "model": "nli",
-            "encoder": "transformer_inter_attention",
+            "encoder": "transformer",
             "aggregator": "linear_aggregate",
             "d_proj": 300,
             "n_layers": 6,
@@ -86,12 +86,15 @@
             "d_hidden": 100,
             "d_transformer": 100,
             "d_ff_transformer": 2048,
-            "h_transformer": 5,
+            "n_head": 5,
             "dp_ratio": 0.2,
-            "dropout_pe": 0.2
+            "dropout_pe": 0.2,
+            "attn_pdrop": 0.2,
+            "resid_pdrop": 0.2,
+            "afn": "gelu"
         }
     },
-    "TRANSFORMER1": {
+    "TRANSFORMER": {
         "MISC": {
             "print_every_n_batch": 100,
             "eval_every_n_batch": 100,
@@ -125,7 +128,7 @@
         },
         "MODEL": {
             "model": "nli",
-            "encoder": "transformer1",
+            "encoder": "transformer_w_input",
             "aggregator": "linear_aggregate",
             "d_proj": 300,
             "n_layers": 6,

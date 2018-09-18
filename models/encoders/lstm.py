@@ -18,7 +18,7 @@ class LSTM(nn.Module):
                         num_layers=config.n_layers, dropout=dropout,
                         bidirectional=config.birnn)
     
-    def forward(self, inputs, inputs_embed):
+    def forward(self, inputs_embed):
         """
         inputs (batch_size, seq_len, input_size)
         output (batch_size, d_hidden)
