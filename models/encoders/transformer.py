@@ -20,9 +20,8 @@ class TransformerWInput(nn.Module):
     
     def forward(self, x, y):
 
-        x_encoded = self.encoder(x)
-        y_attn_over_x_encoded = self.encoder_w_input(y, x_encoded)
-        output = torch.mean(y_attn_over_x_encoded, 1)
+        y_attn_over_x = self.encoder_w_input(y, x)
+        output = torch.mean(y_attn_over_x, 1)
         return output
 
 class Transformer(nn.Module):
