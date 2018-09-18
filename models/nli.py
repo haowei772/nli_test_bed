@@ -41,10 +41,8 @@ class NLI(nn.Module):
 
 
         # ----- encoder -----
-        premise = self.encode_p(batch.premise, prem_embed, batch.hypothesis, 
-            hypo_embed)
-        hypothesis = self.encode_h(batch.hypothesis, hypo_embed, batch.premise, 
-            prem_embed)
+        premise = self.encode_p(prem_embed, hypo_embed)
+        hypothesis = self.encode_h(hypo_embed, prem_embed)
 
         # ----- aggregator -----
         scores = self.aggregate(premise, hypothesis)
