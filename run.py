@@ -26,6 +26,9 @@ def main():
     data = get_data(config)
     config['n_updates_total']=len(data.train_iter) * config.epochs
 
+    # ----- logger -----
+    logger = ResultLogger(config.log_file, **config)
+
     # ----- create or load model -----
     print("Loading model")
     model = get_model(config, data.vocab)
@@ -46,21 +49,19 @@ def main():
     print("Loading loss compute function")
     loss_compute = get_loss_compute(config, criterion, optimizer)
     loss_compute_dev = get_loss_compute(config, criterion, None)
-
+    
     # ----- train mode -----
     if config.mode == 'train':
-        print("Training")
         best_dev_acc = -1
         for i in range(config.epochs):
 
             model.train()
-            acc = run_epoch(config, i, data.train_iter, model, loss_compute, device, mode='train')
-
+            run_epoch(logger, config, i, data.train_iter, model, loss_compute, device, mode='train')
 
             # ----- dev -----
             model.eval()
             with torch.no_grad():
-                dev_acc = run_epoch(config, i, data.dev_iter, model, loss_compute_dev, device, mode='eval')
+                dev_acc = run_epoch(logger, config, i, data.dev_iter, model, loss_compute_dev, device, mode='eval')
                 if dev_acc > best_dev_acc:
                     best_dev_acc = dev_acc
                     if config.save_model:
@@ -73,7 +74,7 @@ def main():
         print("Testing")
         model.eval()
         with torch.no_grad():
-            test_acc = run_epoch(config, 0, data.test_iter, model, loss_compute_dev, device, mode='test')
+            test_acc = run_epoch(logger, config, 0, data.test_iter, model, loss_compute_dev, device, mode='test')
     
 
     # ----- visualization mode -----
