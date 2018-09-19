@@ -4,6 +4,7 @@ from .embedding import Embedding
 from .encoder import Encoder
 from .positional_encoding import PositionalEncoding
 from .aggregator import Aggregator
+from .reducer import Reducer
 
 class NLISiamese(nn.Module):
 
@@ -22,6 +23,11 @@ class NLISiamese(nn.Module):
         self.encode = Encoder(config)
 
         self.encode_p = self.encode_h = self.encode
+
+        # reducer
+        self.reduce = Reducer(config)
+
+        self.reduce_p = self.reduce_h = self.reduce
 
         # aggregator
         self.aggregate = Aggregator(config)
@@ -44,9 +50,12 @@ class NLISiamese(nn.Module):
         premise = self.encode_p(prem_embed)
         hypothesis = self.encode_h(hypo_embed)
 
-        # ----- aggregator -----
-        scores = self.aggregate(premise, hypothesis)
+        # ----- reducer -----
+        premise_reduced = self.reduce_p(premise)
+        hypothesis_reduced = self.reduce_h(hypothesis)
 
+        # ----- aggregator -----
+        scores = self.aggregate(premise_reduced, hypothesis_reduced)
 
         return scores
 

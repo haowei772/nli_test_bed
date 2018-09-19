@@ -1,4 +1,7 @@
 # Natural Language Inference Test Bed
+This is a testbed for comparing various deep learning models in the context of Natural Language Inference (NLI) implemented in [PyTorch](http://pytorch.org).
+
+Since there is no standard architecture for NLI, we have integrated all the models into two main architectures, a siamese architecture and a matching-aggregate architecture.
 
 # Requirement
 
@@ -6,7 +9,10 @@
 
     pip install -r requirements.txt
     python -m spacy download en
-    python run.py train TRANSFORMER_INTER_ATTENTION
+    python run.py [MODE] [MODEL]
+
+MODE: train, test, visualize 
+MODEL: TRANSFORMER_INTER_ATTENTION, TRANSFORMER, LSTM
 
 
 # Acknowledgment

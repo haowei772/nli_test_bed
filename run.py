@@ -5,8 +5,8 @@ import torch.nn as nn
 import torch.optim as O
 import matplotlib.pyplot as plt
 
-# from config import config
-from utils.train_utils import get_device_info, set_seed, run_epoch, save_model, restore_model
+from utils.train_utils import (get_device_info, set_seed, run_epoch, save_model, 
+    restore_model)
 from utils.utils import *
 from utils.text_utils import text_to_var
 
@@ -52,6 +52,7 @@ def main():
     
     # ----- train mode -----
     if config.mode == 'train':
+        print("Training")
         best_dev_acc = -1
         for i in range(config.epochs):
 
@@ -66,7 +67,6 @@ def main():
                     best_dev_acc = dev_acc
                     if config.save_model:
                         save_model(model, config, dev_acc, i)
-                
 
     
     # ----- test mode -----
@@ -105,9 +105,6 @@ def main():
             model.encode_h.draw_attentions(sent_h, sent_p)
 
 
-            
-
-            
 
 if __name__ == "__main__":
     main()
