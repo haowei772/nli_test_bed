@@ -61,7 +61,6 @@ def run_epoch(config, epoch, data_iter, model, loss_compute, device, mode='train
     """
     start = time.time()
     total_loss, n_correct, n_total = 0, 0, 0
-    acc_total = 0.0
     data_iter.init_epoch()
 
     for i, batch in enumerate(data_iter):
@@ -76,7 +75,6 @@ def run_epoch(config, epoch, data_iter, model, loss_compute, device, mode='train
         n_correct += (torch.max(out, 1)[1].view(batch.label.size()) == batch.label).sum().item()
         n_total += batch.batch_size
         acc = 100. * n_correct/n_total
-        acc_total += acc
 
         # ----- log ----- 
         if i % config.print_every_n_batch == 1:
@@ -86,7 +84,6 @@ def run_epoch(config, epoch, data_iter, model, loss_compute, device, mode='train
             log_temporary(config.log_file, line)
             start = time.time()
 
-    acc_total = acc_total/len(data_iter)
-    print("acc_total: ", acc_total)
-    print("n_correct/n_total*100", n_correct/n_total*100)
+    acc_total = n_correct/n_total*100
+
     return acc_total
