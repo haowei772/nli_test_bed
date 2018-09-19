@@ -5,6 +5,8 @@
             "eval_every_n_batch": 100,
             "save_model": false,
             "save_path": "results",
+            "restore_model": false,
+            "restore_path": "results/best_snapshot_acc_25__iter_0_model.pt",
             "log_file": "log.txt",
             "eps": 1e-6
         },
@@ -50,6 +52,8 @@
             "eval_every_n_batch": 100,
             "save_model": false,
             "save_path": "results",
+            "restore_model": false,
+            "restore_path": "results/best_snapshot_acc_25__iter_0_model.pt",
             "log_file": "log.txt",
             "eps": 1e-6,
             "e": 1e-8
@@ -106,8 +110,10 @@
         "MISC": {
             "print_every_n_batch": 100,
             "eval_every_n_batch": 100,
-            "save_model": false,
+            "save_model": true,
             "save_path": "results",
+            "restore_model": false,
+            "restore_path": "results/best_snapshot_acc_25__iter_0_model.pt",
             "log_file": "log.txt",
             "eps": 1e-6,
             "e": 1e-8

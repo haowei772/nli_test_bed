@@ -6,7 +6,7 @@ import torch.optim as O
 import matplotlib.pyplot as plt
 
 # from config import config
-from utils.train_utils import get_device_info, set_seed, run_epoch, save_model
+from utils.train_utils import get_device_info, set_seed, run_epoch, save_model, restore_model
 from utils.utils import *
 from utils.text_utils import text_to_var
 
@@ -29,6 +29,9 @@ def main():
     # ----- create or load model -----
     print("Loading model")
     model = get_model(config, data.vocab)
+    if config.restore_model:
+        print("restoring")
+        restore_model(model, config.restore_path)
     model.to(device)
 
     # ----- create criterion -----
@@ -46,12 +49,13 @@ def main():
 
     # ----- train mode -----
     if config.mode == 'train':
-        
         print("Training")
         best_dev_acc = -1
         for i in range(config.epochs):
+
             model.train()
-            run_epoch(config, i, data.train_iter, model, loss_compute, device, mode='train')
+            acc = run_epoch(config, i, data.train_iter, model, loss_compute, device, mode='train')
+
 
             # ----- dev -----
             model.eval()
@@ -66,6 +70,7 @@ def main():
     
     # ----- test mode -----
     elif config.mode == 'test':
+        print("Testing")
         model.eval()
         with torch.no_grad():
             test_acc = run_epoch(config, 0, data.test_iter, model, loss_compute_dev, device, mode='test')
@@ -73,6 +78,7 @@ def main():
 
     # ----- visualization mode -----
     elif config.mode == 'visualize':
+        print("Visualizing")
         model.eval()
         while True:
             premise = input("premise > ")

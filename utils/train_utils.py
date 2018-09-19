@@ -11,10 +11,17 @@ def save_model(model, config, acc, iterations):
     makedirs(config.save_path)
 
     # save model, delete previous 'best_snapshot' files
-    torch.save(model, snapshot_path)
+    torch.save(model.state_dict(), snapshot_path)
     for f in glob.glob(snapshot_prefix + '*'):
         if f != snapshot_path:
             os.remove(f)
+
+
+def restore_model(model, path):
+    if not os.path.isfile(path):
+        raise FileNotFoundError("model restore path not found")
+    model.load_state_dict(torch.load(path))
+
 
 def makedirs(name):
     """helper function for python 2 and 3 to call os.makedirs()
