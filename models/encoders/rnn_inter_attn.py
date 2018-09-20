@@ -28,10 +28,11 @@ class RNNInterAttn(nn.Module):
         
         self.attn = Attention(hidden_size)
 
-    def forward(self, inputs, context):
+    def forward(self, x, y):
 
-        output, hidden = self.rnn(inputs)
-        output, attn = self.attn(output, context)
+        output_x, (hx, cx) = self.rnn(x)
+        output_y, (hy, cy) = self.rnn(y)
+        output, attn = self.attn(output_x, output_y)
 
         return output
 
@@ -53,12 +54,12 @@ class Attention(nn.Module):
         """
         self.mask = mask
 
-    def forward(self, input, context):
-        batch_size = input.size(0)
-        hidden_size = input.size(2)
-        input_size = input.size(1)
+    def forward(self, output, context):
+        batch_size = output.size(0)
+        hidden_size = output.size(2)
+        input_size = context.size(1)
         # (batch, out_len, dim) * (batch, in_len, dim) -> (batch, out_len, in_len)
-        attn = torch.bmm(input, context.transpose(1, 2))
+        attn = torch.bmm(output, context.transpose(1, 2))
         if self.mask is not None:
             attn.data.masked_fill_(self.mask, -float('inf'))
         attn = F.softmax(attn.view(-1, input_size), dim=1).view(batch_size, -1, input_size)
@@ -67,7 +68,8 @@ class Attention(nn.Module):
         mix = torch.bmm(attn, context)
 
         # concat -> (batch, out_len, 2*dim)
-        combined = torch.cat((mix, input), dim=2)
+        combined = torch.cat((mix, output), dim=2)
+
         # output -> (batch, out_len, dim)
         output = F.tanh(self.linear_out(combined.view(-1, 2 * hidden_size))).view(batch_size, -1, hidden_size)
 

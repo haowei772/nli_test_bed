@@ -4,6 +4,7 @@ from .embedding import Embedding
 from .encoder import Encoder
 from .positional_encoding import PositionalEncoding
 from .aggregator import Aggregator
+from .reducer import Reducer
 
 class NLI(nn.Module):
 
@@ -21,6 +22,11 @@ class NLI(nn.Module):
         # encoder
         self.encode_p = Encoder(config)
         self.encode_h = Encoder(config)
+
+        # reducer
+        self.reduce_p = Reducer(config)
+        self.reduce_h = Reducer(config)
+
 
         # aggregator
         self.aggregate = Aggregator(config)
@@ -43,9 +49,14 @@ class NLI(nn.Module):
         # ----- encoder -----
         premise = self.encode_p(prem_embed, hypo_embed)
         hypothesis = self.encode_h(hypo_embed, prem_embed)
+        
+
+        # ----- reducer -----
+        premise_reduced = self.reduce_p(premise)
+        hypothesis_reduced = self.reduce_h(hypothesis)
 
         # ----- aggregator -----
-        scores = self.aggregate(premise, hypothesis)
+        scores = self.aggregate(premise_reduced, hypothesis_reduced)
 
 
         return scores
