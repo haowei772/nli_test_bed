@@ -69,7 +69,7 @@ def run_epoch(logger, config, epoch, data_iter, model, loss_compute, device, mod
 
         # ----- loss compute and backprop ----- 
         loss = loss_compute(out, batch)
-        total_loss += loss
+        total_loss += loss.data[0]
 
         # ----- accuracy ----- 
         n_correct += (torch.max(out, 1)[1].view(batch.label.size()) == batch.label).sum().item()
@@ -79,7 +79,7 @@ def run_epoch(logger, config, epoch, data_iter, model, loss_compute, device, mod
 
     elapsed = time.time() - start
     acc_total = n_correct/n_total*100
-    loss = total_loss/n_total*100
+    loss = total_loss/len(data_iter)
 
     logger.log(mode=mode, epoch=epoch, acc_total=acc_total, loss=loss, elapsed=elapsed )
     
