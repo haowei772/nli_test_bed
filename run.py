@@ -14,6 +14,9 @@ def main():
     # ----- get config -----
     config = parse_args_get_config()
 
+    # ----- logger -----
+    logger = ResultLogger(config.log_file, **config)
+
     # ----- set seed -----
     set_seed(config)
 
@@ -25,9 +28,6 @@ def main():
     print("Loading data")
     data = get_data(config)
     config['n_updates_total']=len(data.train_iter) * config.epochs
-
-    # ----- logger -----
-    logger = ResultLogger(config.log_file, **config)
 
     # ----- create or load model -----
     print("Loading model")
@@ -77,9 +77,9 @@ def main():
             test_acc = run_epoch(logger, config, 0, data.test_iter, model, loss_compute_dev, device, mode='test')
     
 
-    # ----- visualization mode -----
+    # ----- interactive mode -----
     elif config.mode == 'visualize':
-        print("Visualizing")
+        print("Interactive")
         model.eval()
         while True:
             premise = input("premise > ")

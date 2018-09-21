@@ -72,7 +72,7 @@ def get_loss_compute(config, criterion, optimizer):
 def parse_args_get_config():
 	parser = ArgumentParser()
 	parser.add_argument('mode',
-						choices=['train', 'test', 'visualize'],
+						choices=['train', 'test', 'interactive'],
 						help="pipeline mode")
 	parser.add_argument('config',
 						help='model to be used')
