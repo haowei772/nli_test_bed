@@ -76,10 +76,10 @@ def run_epoch(logger, config, epoch, data_iter, model, loss_compute, device, mod
         n_total += batch.batch_size
         acc = 100. * n_correct/n_total
 
-        # ----- log ----- 
-        if i % config.print_every_n_batch == 1:
-            line = f"Mode: {mode} Epoch: {epoch} Step: {i} Loss: {loss.item()} Accuracy: {acc}\n"
-            print(line)
+        # # ----- log ----- 
+        # if i % config.print_every_n_batch == 1:
+        #     line = f"Mode: {mode} Epoch: {epoch} Step: {i} Loss: {loss.item()} Accuracy: {acc}\n"
+        #     print(line)
         
         del loss, out
 
