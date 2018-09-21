@@ -11,12 +11,12 @@ from time import gmtime, strftime
 # from utils.utils import draw
 from utils.model_utils import clones, draw
 
-class TransformerWInput(nn.Module):
+class TransformerInterAttn(nn.Module):
     def __init__(self, config):
-        super(TransformerWInput, self).__init__()
+        super(TransformerInterAttn, self).__init__()
         self.config = config
         self.encoder = TransformerEncoder(self.config)
-        self.encoder_w_input = TransformerEncoderWInput(self.config)
+        self.encoder_inter_attn = TransformerEncoderInterAttn(self.config)
 
         self.init()
     
@@ -25,15 +25,14 @@ class TransformerWInput(nn.Module):
             if p.dim() > 1:
                 nn.init.xavier_uniform_(p)
         
-        for p in self.encoder_w_input.parameters():
+        for p in self.encoder_inter_attn.parameters():
             if p.dim() > 1:
                 nn.init.xavier_uniform_(p)
     
     def forward(self, x, y):
 
-        y_attn_over_x = self.encoder_w_input(y, x)
-        output = torch.mean(y_attn_over_x, 1)
-        return output
+        return self.encoder_inter_attn(y, x)
+
 
 class Transformer(nn.Module):
     def __init__(self, config):
@@ -50,20 +49,18 @@ class Transformer(nn.Module):
     
     def forward(self, x):
 
-        x_encoded = self.encoder(x)
-        output = torch.mean(x_encoded, 1)
-        return output
+        return self.encoder(x)
 
 
-class TransformerEncoderWInput(nn.Module):
+class TransformerEncoderInterAttn(nn.Module):
     def __init__(self, config):
-        super(TransformerEncoderWInput, self).__init__()
+        super(TransformerEncoderInterAttn, self).__init__()
 
         self.config = config
 
         c = copy.deepcopy
 
-        block = BlockWInput(config, scale=True)
+        block = BlockInterAttn(config, scale=True)
 
         self.layers = clones(block, config.n_layers)
     
@@ -254,9 +251,9 @@ class Block(nn.Module):
         h = self.ln_2(n + m)
         return h
 
-class BlockWInput(nn.Module):
+class BlockInterAttn(nn.Module):
     def __init__(self, cfg, scale=False):
-        super(BlockWInput, self).__init__()
+        super(BlockInterAttn, self).__init__()
         nx = cfg.d_embed
         self.attn = Attention(nx, cfg, scale)
         self.attn_w_input = Attention(nx, cfg, scale)

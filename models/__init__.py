@@ -1,7 +1,7 @@
 from .nli import NLI
-from .nli_siamese import NLISiamese
+from .nli_inter_attn import NLIInterAttn
 
 models = {
-    'nli_siamese': NLISiamese,
     'nli': NLI,
+    'nli_inter_attn': NLIInterAttn,
 }

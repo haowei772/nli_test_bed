@@ -2,14 +2,15 @@ import torch.nn as nn
 
 from .embedding import Embedding
 from .encoder import Encoder
+from .encoder_inter_attn import EncoderInterAttn
 from .positional_encoding import PositionalEncoding
 from .aggregator import Aggregator
 from .reducer import Reducer
 
-class NLISiamese(nn.Module):
+class NLIInterAttn(nn.Module):
 
     def __init__(self, config, vocab):
-        super(NLISiamese, self).__init__()
+        super(NLIInterAttn, self).__init__()
 
         # embedding
         self.embed = Embedding(config, vocab)
@@ -20,42 +21,55 @@ class NLISiamese(nn.Module):
             self.pos_encoding = PositionalEncoding(config)
 
         # encoder
-        self.encode = Encoder(config)
+        self.encode_p = Encoder(config)
+        self.encode_h = Encoder(config)
 
-        self.encode_p = self.encode_h = self.encode
+        # encoder with inter attention
+        self.encode_p_inter = EncoderInterAttn(config)
+        self.encode_h_inter = EncoderInterAttn(config)
 
         # reducer
-        self.reduce = Reducer(config)
+        self.reduce_p = Reducer(config)
+        self.reduce_h = Reducer(config)
 
-        self.reduce_p = self.reduce_h = self.reduce
 
         # aggregator
         self.aggregate = Aggregator(config)
 
 
 
-    
+
     def forward(self, batch):
 
         # ----- embedding -----
         prem_embed = self.embed(batch.premise)
         hypo_embed = self.embed(batch.hypothesis)
 
+
         # ----- pos encoding -----
         if self.pos_encoding:
             prem_embed = self.pos_encoding(prem_embed)
             hypo_embed = self.pos_encoding(hypo_embed)
 
+
         # ----- encoder -----
-        premise = self.encode_p(prem_embed)
-        hypothesis = self.encode_h(hypo_embed)
+        premise_encoded = self.encode_p(prem_embed)
+        hypothesis_encoded = self.encode_h(hypo_embed)
+
+
+        # ----- encoder inter attention -----
+        premise_encoded_inter = self.encode_p_inter(premise_encoded, hypothesis_encoded)
+        hypothesis_encoded_inter = self.encode_h_inter(hypothesis_encoded, premise_encoded)
+
 
         # ----- reducer -----
-        premise_reduced = self.reduce_p(premise)
-        hypothesis_reduced = self.reduce_h(hypothesis)
+        premise_reduced = self.reduce_p(premise_encoded_inter)
+        hypothesis_reduced = self.reduce_h(hypothesis_encoded_inter)
+
 
         # ----- aggregator -----
         scores = self.aggregate(premise_reduced, hypothesis_reduced)
+
 
         return scores
 

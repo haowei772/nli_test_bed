@@ -24,6 +24,6 @@ class RNN(nn.Module):
                                 num_layers=n_layers,batch_first=True,
                                 bidirectional=birnn, dropout=dropout)
 
-    def forward(self, inputs):
-        output, hidden = self.rnn(inputs)
-        return output
+    def forward(self, x):
+        output_x, (hx, cx) = self.rnn(x)
+        return output_x
