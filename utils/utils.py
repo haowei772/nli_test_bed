@@ -98,10 +98,14 @@ def parse_args_get_config():
     			config_flat[in_k] = in_v
 	config = config_flat
 
+	# ----- generate this run name -----
+	run_name = config['model'] + "__" + config['encoder'] + "__" + time.strftime("%Y%m%d-%H%M%S")
+
 	# ----- add info from argparser -----
 	config.update({
 		'mode': args.mode,
-		'gpu': args.gpu
+		'gpu': args.gpu,
+		'run_name': run_name
 	})
 
 	return dotdict(config)

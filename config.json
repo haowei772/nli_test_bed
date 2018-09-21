@@ -7,11 +7,11 @@
             "save_path": "results",
             "restore_model": false,
             "restore_path": "results/best_snapshot_acc_25__iter_0_model.pt",
-            "log_file": "log.txt",
+            "log_path": "runs",
             "eps": 1e-6
         },
         "DATA": {
-            "dataset": "snli",
+            "dataset": "multinli",
             "tokenize": false,
             "max_len": 500
         },
@@ -28,7 +28,7 @@
         },
         "EMBEDDING": {
             "word_vectors": "glove.6B.100d",
-            "vector_cache": ".vector_cache/input_vectors.pt",
+            "vector_cache": ".vector_cache/input_vectors_multinli.pt",
             "d_embed": 100,
             "train_embed": true,
             "positional_encoding": false,
@@ -59,7 +59,7 @@
             "save_path": "results",
             "restore_model": false,
             "restore_path": "results/best_snapshot_acc_25__iter_0_model.pt",
-            "log_file": "log.txt",
+            "log_path": "runs",
             "eps": 1e-6
         },
         "DATA": {
@@ -112,7 +112,7 @@
             "save_path": "results",
             "restore_model": false,
             "restore_path": "results/best_snapshot_acc_25__iter_0_model.pt",
-            "log_file": "log.txt",
+            "log_path": "runs",
             "eps": 1e-6,
             "e": 1e-8
         },
@@ -173,7 +173,7 @@
             "save_path": "results",
             "restore_model": false,
             "restore_path": "results/best_snapshot_acc_25__iter_0_model.pt",
-            "log_file": "log.txt",
+            "log_path": "runs",
             "eps": 1e-6,
             "e": 1e-8
         },

@@ -54,13 +54,13 @@ def set_seed(config):
     torch.cuda.manual_seed_all(config.seed)
 
 
-def run_epoch(logger, config, epoch, data_iter, model, loss_compute, device, mode='train'):
+def run_epoch(logger, config, epoch, data_iter, model, loss_compute, device, 
+        dev_iter=None, dev_loss_compute=None, mode='train', log=True):
     """ Training function
     """
     start = time.time()
     total_loss, n_correct, n_total = 0, 0, 0
     data_iter.init_epoch()
-    logger.log(mode="train")
 
     for i, batch in enumerate(tqdm(data_iter)):
 
@@ -76,10 +76,19 @@ def run_epoch(logger, config, epoch, data_iter, model, loss_compute, device, mod
         n_total += batch.batch_size
         acc = 100. * n_correct/n_total
 
-        # # ----- log ----- 
-        # if i % config.print_every_n_batch == 1:
-        #     line = f"Mode: {mode} Epoch: {epoch} Step: {i} Loss: {loss.item()} Accuracy: {acc}\n"
-        #     print(line)
+        # ----- log ----- 
+        if log and i % config.print_every_n_batch == 1:
+            logger.add_scalar(f"loss/{mode}", total_loss, epoch * len(data_iter) + i)
+            logger.add_scalar(f"acc/{mode}", acc, epoch * len(data_iter) + i)
+
+            # ----- dev ----- 
+            if dev_iter:
+                with torch.no_grad():
+                    model.eval()
+                    dev_acc, dev_loss = run_epoch(logger, config, i, dev_iter, model, dev_loss_compute, device, dev_iter=None, dev_loss_compute=None, mode='dev', log=False)
+                    model.train()
+                    logger.add_scalar(f"loss/dev", dev_loss, epoch * len(data_iter) + i)
+                    logger.add_scalar(f"acc/dev", dev_acc, epoch * len(data_iter) + i)
         
         del loss, out
 
@@ -88,6 +97,6 @@ def run_epoch(logger, config, epoch, data_iter, model, loss_compute, device, mod
     acc_total = n_correct/n_total*100
     loss = total_loss/len(data_iter)
 
-    logger.log(mode=mode, epoch=epoch, acc_total=acc_total, loss=loss, elapsed=elapsed )
+    # logger.log(mode=mode, epoch=epoch, acc_total=acc_total, loss=loss, elapsed=elapsed )
     
-    return acc_total
+    return acc_total, loss

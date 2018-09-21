@@ -1,3 +1,5 @@
+absl-py==0.5.0
+astor==0.7.1
 certifi==2018.8.24
 chardet==3.0.4
 cycler==0.10.0
@@ -5,16 +7,20 @@ cymem==1.31.2
 cytoolz==0.9.0.1
 dill==0.2.8.2
 en-core-web-sm==2.0.0
+gast==0.2.0
+grpcio==1.15.0
 idna==2.7
 kiwisolver==1.0.1
+Markdown==2.6.11
 matplotlib==2.2.3
 msgpack==0.5.6
 msgpack-numpy==0.4.3.1
 murmurhash==0.28.0
-numpy==1.15.1
+numpy==1.14.5
 pandas==0.23.4
 plac==0.9.6
 preshed==1.0.1
+protobuf==3.6.1
 pyparsing==2.2.0
 python-dateutil==2.7.3
 pytz==2018.5
@@ -25,6 +31,10 @@ scipy==1.1.0
 seaborn==0.9.0
 six==1.11.0
 spacy==2.0.12
+tensorboard==1.10.0
+tensorboardX==1.4
+tensorflow==1.10.1
+termcolor==1.1.0
 thinc==6.10.3
 toolz==0.9.0
 torch==0.4.1
@@ -32,4 +42,5 @@ torchtext==0.3.0
 tqdm==4.25.0
 ujson==1.35
 urllib3==1.23
+Werkzeug==0.14.1
 wrapt==1.10.11

@@ -4,6 +4,7 @@ import torch
 import torch.nn as nn
 import torch.optim as O
 import matplotlib.pyplot as plt
+from tensorboardX import SummaryWriter
 
 from utils.train_utils import (get_device_info, set_seed, run_epoch, save_model, 
     restore_model)
@@ -15,7 +16,8 @@ def main():
     config = parse_args_get_config()
 
     # ----- logger -----
-    logger = ResultLogger(config.log_file, **config)
+    logger = SummaryWriter(log_dir=config.log_path + "/" + config.run_name)
+    for c, c_value in config.items(): logger.add_text(c, str(c_value))
 
     # ----- set seed -----
     set_seed(config)
@@ -56,13 +58,17 @@ def main():
         best_dev_acc = -1
         for i in range(config.epochs):
 
+            # ----- train -----
             model.train()
-            run_epoch(logger, config, i, data.train_iter, model, loss_compute, device, mode='train')
+            run_epoch(logger, config, i, data.train_iter, model, loss_compute, 
+                device, dev_iter=data.dev_iter, dev_loss_compute=loss_compute_dev,
+                mode='train', log=True)
 
             # ----- dev -----
             model.eval()
             with torch.no_grad():
-                dev_acc = run_epoch(logger, config, i, data.dev_iter, model, loss_compute_dev, device, mode='eval')
+                dev_acc, dev_loss = run_epoch(logger, config, i, data.dev_iter, 
+                    model, loss_compute_dev, device, mode='eval')
                 if dev_acc > best_dev_acc:
                     best_dev_acc = dev_acc
                     if config.save_model:
@@ -74,11 +80,12 @@ def main():
         print("Testing")
         model.eval()
         with torch.no_grad():
-            test_acc = run_epoch(logger, config, 0, data.test_iter, model, loss_compute_dev, device, mode='test')
+            test_acc, test_loss = run_epoch(logger, config, 0, data.test_iter, 
+                model, loss_compute_dev, device, mode='test')
     
 
     # ----- interactive mode -----
-    elif config.mode == 'visualize':
+    elif config.mode == 'interactive':
         print("Interactive")
         model.eval()
         while True:
@@ -104,6 +111,7 @@ def main():
             model.encode_p.draw_attentions(sent_p, sent_h)
             model.encode_h.draw_attentions(sent_h, sent_p)
 
+    logger.close()
 
 
 if __name__ == "__main__":
