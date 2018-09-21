@@ -7,7 +7,7 @@ from torchtext import datasets
 
 from utils.text_utils import tokenize, add_vocab_vectors
 
-class SNLI():
+class MultiNLI():
     def __init__(self, config):
         
         device = config.device
@@ -21,7 +21,7 @@ class SNLI():
         self.LABEL = data.ReversibleField(sequential=False, unk_token=None)
 
         # data split
-        self.train, self.dev, self.test = datasets.SNLI.splits(self.TEXT, self.LABEL)
+        self.train, self.dev, self.test = datasets.MultiNLI.splits(self.TEXT, self.LABEL)
 
         # build vocabs
         self.TEXT.build_vocab(self.train, self.dev, self.test)
@@ -45,7 +45,6 @@ class SNLI():
 
         self.max_word_len = max([len(w) for w in self.TEXT.vocab.itos])
         self.vocab = self.TEXT.vocab
-
 
         config.n_embed = len(self.TEXT.vocab)
         config.d_out = len(self.LABEL.vocab) # output size, num of classes

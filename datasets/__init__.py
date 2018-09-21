@@ -1,5 +1,7 @@
 from .snli import SNLI
+from .multinli import MultiNLI
 
 datasets = {
-    'snli': SNLI
+    'snli': SNLI,
+    'multinli': MultiNLI
 }
