@@ -1,10 +1,9 @@
 import torch.nn as nn
 
-from .embedding import Embedding
-from .encoder import Encoder
-from .positional_encoding import PositionalEncoding
-from .aggregator import Aggregator
-from .reducer import Reducer
+from .embedding import Embedding, PositionalEncoding
+from .encoders import Encoder
+from .aggregators import Aggregator
+from .reducers import Reducer
 
 class NLI(nn.Module):
 

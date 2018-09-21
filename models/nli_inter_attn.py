@@ -1,11 +1,9 @@
 import torch.nn as nn
 
-from .embedding import Embedding
-from .encoder import Encoder
-from .encoder_inter_attn import EncoderInterAttn
-from .positional_encoding import PositionalEncoding
-from .aggregator import Aggregator
-from .reducer import Reducer
+from .embedding import Embedding, PositionalEncoding
+from .encoders import Encoder, EncoderInterAttn
+from .aggregators import Aggregator
+from .reducers import Reducer
 
 class NLIInterAttn(nn.Module):
 
