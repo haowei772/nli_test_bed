@@ -5,8 +5,9 @@ Since there is no standard architecture for NLI, we have integrated all the mode
 
 Note that this repo is not optimized for speed.
 
-![Natural Language Inference](assets/nli.png)
-![Siamese Natural Language Inference](assets/nli_siamese.png)
+![Siamese Natural Language Inference](assets/nli_siamese.png)<!-- .element height="50%" width="50%" -->
+![Natural Language Inference](assets/nli.png)<!-- .element height="50%" width="50%" -->
+
 
 # Requirement
 
