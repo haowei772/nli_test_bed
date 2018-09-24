@@ -3,6 +3,11 @@ This is a testbed for comparing various deep learning models in the context of N
 
 Since there is no standard architecture for NLI, we have integrated all the models into two main architectures, a siamese architecture and a matching-aggregate architecture.
 
+Note that this repo is not optimized for speed.
+
+![Natural Language Inference](assets/nli.png)
+![Siamese Natural Language Inference](assets/nli_siamese.png)
+
 # Requirement
 
 # Usage
@@ -14,6 +19,8 @@ Since there is no standard architecture for NLI, we have integrated all the mode
 MODE: train, test, visualize 
 MODEL: TRANSFORMER_INTER_ATTENTION, TRANSFORMER, LSTM
 
+
+When changing dataset, change the vector cache file
 
 # Acknowledgment
 - https://github.com/harvardnlp/annotated-transformer
