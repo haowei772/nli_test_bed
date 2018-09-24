@@ -7,8 +7,7 @@
             "save_path": "results",
             "restore_model": false,
             "restore_path": "results/best_snapshot_acc_25__iter_0_model.pt",
-            "log_path": "runs",
-            "eps": 1e-6
+            "log_path": "runs"
         },
         "DATA": {
             "dataset": "multinli",
@@ -19,12 +18,13 @@
             "mode": "train",
             "seed": 42,
             "gpu": 0,
-            "epochs": 10,
+            "epochs": 50,
             "lr": 0.001,
-            "batch_size": 16,
+            "batch_size": 128,
             "criterion": "cross_entropy_loss",
             "optimizer": "adam",
-            "loss_compute": "simple_loss_compute"
+            "loss_compute": "simple_loss_compute",
+            "eps": 1e-6
         },
         "EMBEDDING": {
             "word_vectors": "glove.6B.100d",
@@ -59,8 +59,7 @@
             "save_path": "results",
             "restore_model": false,
             "restore_path": "results/best_snapshot_acc_25__iter_0_model.pt",
-            "log_path": "runs",
-            "eps": 1e-6
+            "log_path": "runs"
         },
         "DATA": {
             "dataset": "snli",
@@ -71,12 +70,13 @@
             "mode": "train",
             "seed": 42,
             "gpu": 0,
-            "epochs": 10,
+            "epochs": 50,
             "lr": 0.001,
-            "batch_size": 16,
+            "batch_size": 128,
             "criterion": "cross_entropy_loss",
             "optimizer": "adam",
-            "loss_compute": "simple_loss_compute"
+            "loss_compute": "simple_loss_compute",
+            "eps": 1e-6
         },
         "EMBEDDING": {
             "word_vectors": "glove.6B.100d",
@@ -112,9 +112,7 @@
             "save_path": "results",
             "restore_model": false,
             "restore_path": "results/best_snapshot_acc_25__iter_0_model.pt",
-            "log_path": "runs",
-            "eps": 1e-6,
-            "e": 1e-8
+            "log_path": "runs"
         },
         "DATA": {
             "dataset": "snli",
@@ -124,19 +122,22 @@
         "TRAIN" : {
             "seed": 42,
             "gpu": 0,
-            "epochs": 20,
+            "epochs": 50,
             "lr": 0.001,
-            "batch_size": 256,
+            "batch_size": 128,
             "criterion": "cross_entropy_loss",
             "optimizer": "adam_openai",
             "loss_compute": "simple_loss_compute",
             "lr_schedule": "warmup_linear",
             "lr_warmup": 0.002,
+            "n_warmup_steps": 4000,
             "b1": 0.9,
             "b2": 0.999,
             "l2": 0.01,
             "vector_l2": "store_true",
-            "max_grad_norm": 1
+            "max_grad_norm": 1,
+            "eps": 1e-6,
+            "e": 1e-8
         },
         "EMBEDDING": {
             "word_vectors": "glove.6B.100d",
@@ -171,11 +172,9 @@
             "eval_every_n_batch": 100,
             "save_model": true,
             "save_path": "results",
-            "restore_model": false,
-            "restore_path": "results/best_snapshot_acc_25__iter_0_model.pt",
-            "log_path": "runs",
-            "eps": 1e-6,
-            "e": 1e-8
+            "restore_model": true,
+            "restore_path": "results/best_snapshot_acc_56.64499085551717__iter_0_model.pt",
+            "log_path": "runs"
         },
         "DATA": {
             "dataset": "snli",
@@ -185,19 +184,22 @@
         "TRAIN" : {
             "seed": 42,
             "gpu": 0,
-            "epochs": 20,
+            "epochs": 50,
             "lr": 0.001,
-            "batch_size": 256,
+            "batch_size": 128,
             "criterion": "cross_entropy_loss",
-            "optimizer": "adam_openai",
+            "optimizer": "adam_scheduled",
             "loss_compute": "simple_loss_compute",
             "lr_schedule": "warmup_linear",
             "lr_warmup": 0.002,
+            "n_warmup_steps": 4000,
             "b1": 0.9,
             "b2": 0.999,
             "l2": 0.01,
             "vector_l2": "store_true",
-            "max_grad_norm": 1
+            "max_grad_norm": 1,
+            "eps": 1e-6,
+            "e": 1e-8
         },
         "EMBEDDING": {
             "word_vectors": "glove.6B.100d",
