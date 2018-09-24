@@ -1,6 +1,5 @@
 import torch.nn as nn
 
-from .lstm import LSTM
 from .transformer import Transformer, TransformerInterAttn
 from .rnn import RNN
 from .rnn_inter_attn import RNNInterAttn
@@ -12,10 +11,9 @@ Add new encoders to this dict
 '''
 encoders = {
     'rnn': RNN,
-    'lstm': LSTM,
     'transformer': Transformer,
+    'rnn_inter_attn': RNNInterAttn,
     'transformer_inter_attn': TransformerInterAttn,
-    'rnn_inter_attn': RNNInterAttn
 }
 
 
