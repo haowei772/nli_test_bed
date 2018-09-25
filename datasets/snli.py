@@ -11,6 +11,8 @@ class SNLI():
     def __init__(self, config):
         
         device = config.device
+        if device == 'cpu':
+            device = -1
 
         # if tokenize
         if not config.tokenize:
