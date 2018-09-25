@@ -16,15 +16,12 @@ aggregators = {
 Main aggreagtor class
 '''
 class Aggregator(nn.Module):
-    def __init__(self, config):
+    def __init__(self, aggregator_name, config):
         super(Aggregator, self).__init__()
-        if not config.aggregator:
-            raise NotImplementedError("'aggregator' not defined in config")
+        if aggregator_name not in aggregators:
+            raise NotImplementedError(f"aggregator '{aggregator_name}' not implemented")
         
-        if config.aggregator not in aggregators:
-            raise NotImplementedError(f"aggregator '{config.aggregator}' not implemented")
-        
-        self.aggregator = aggregators[config.aggregator](config)
+        self.aggregator = aggregators[aggregator_name](config)
     
     def forward(self, x, y):
         """

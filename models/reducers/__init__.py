@@ -19,15 +19,12 @@ reducers = {
 Main reducer class
 '''
 class Reducer(nn.Module):
-    def __init__(self, config):
+    def __init__(self, reducer_name, config):
         super(Reducer, self).__init__()
-        if not config.reducer:
-            raise NotImplementedError("'reducer' not defined in config")
+        if reducer_name not in reducers:
+            raise NotImplementedError(f"reducer '{reducer_name}' not implemented")
         
-        if config.reducer not in reducers:
-            raise NotImplementedError(f"reducer '{config.reducer}' not implemented")
-        
-        self.reducer = reducers[config.reducer](config)
+        self.reducer = reducers[reducer_name](config)
     
     def forward(self, x):
         """

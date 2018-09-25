@@ -3,7 +3,7 @@ import json
 import time
 from argparse import ArgumentParser
 from pprint import pprint
-from models import models
+from models.model import Model
 from datasets import datasets
 from criteria import criteria
 from optimizers import optimizers
@@ -18,13 +18,14 @@ class dotdict(dict):
 def get_model(config, vocab):
 	""" return model object
 	"""
-	if not config.model:
-		raise NotImplementedError("'model' not defined in config")
+	return Model(config, vocab)
+	# if not config.model:
+	# 	raise NotImplementedError("'model' not defined in config")
 
-	if config.model not in models:
-		raise NotImplementedError("available models: ", [k for k,_ in models.items()])
+	# if config.model not in models:
+	# 	raise NotImplementedError("available models: ", [k for k,_ in models.items()])
 
-	return models[config.model](config, vocab)
+	# return models[config.model](config, vocab)
 
 
 def get_data(config):
@@ -83,13 +84,9 @@ def parse_args_get_config():
 	args = parser.parse_args()
 
 	# ----- load config json file -----
-	with open('config.json', 'r') as f:
+	with open(args.config, 'r') as f:
 		config = json.load(f)
 
-	if args.config not in config:
-		raise NotImplementedError(f"'{args.config}' not defined in config")
-	
-	config = config[args.config]
 
 	# ----- flattening the config structure -----
 	config_flat = {}
@@ -99,7 +96,7 @@ def parse_args_get_config():
 	config = config_flat
 
 	# ----- generate this run name -----
-	run_name = config['model'] + "__" + config['encoder'] + "__" + time.strftime("%Y%m%d-%H%M%S")
+	run_name = args.config[:args.config.rfind(".")] + "__" + time.strftime("%Y%m%d-%H%M%S")
 
 	# ----- add info from argparser -----
 	config.update({

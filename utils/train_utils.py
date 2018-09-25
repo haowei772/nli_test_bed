@@ -8,7 +8,7 @@ from tqdm import tqdm
 
 def save_model(model, config, acc, iterations):
     snapshot_prefix = os.path.join(config.save_path, 'best_snapshot')
-    snapshot_path = snapshot_prefix + '_acc_{}__iter_{}_model.pt'.format(acc, iterations)
+    snapshot_path = snapshot_prefix + config.run_name + '_acc_{:.2f}__iter_{}_model.pt'.format(acc, iterations)
     make_path(config.save_path)
 
     # save model, delete previous 'best_snapshot' files
@@ -18,10 +18,10 @@ def save_model(model, config, acc, iterations):
             os.remove(f)
 
 
-def restore_model(model, path):
+def restore_model(model, path, device):
     if not os.path.isfile(path):
         raise FileNotFoundError("model restore path not found")
-    model.load_state_dict(torch.load(path))
+    model.load_state_dict(torch.load(path, map_location=device))
 
 
 def make_path(f):
@@ -85,7 +85,10 @@ def run_epoch(logger, config, epoch, data_iter, model, loss_compute, device,
             if dev_iter:
                 with torch.no_grad():
                     model.eval()
-                    dev_acc, dev_loss = run_epoch(logger, config, i, dev_iter, model, dev_loss_compute, device, dev_iter=None, dev_loss_compute=None, mode='dev', log=False)
+                    dev_acc, dev_loss = run_epoch(logger, config, i, dev_iter, 
+                        model, dev_loss_compute, device, dev_iter=None, 
+                        dev_loss_compute=None, mode='dev', log=False)
+                        
                     model.train()
                     logger.add_scalar(f"loss/dev", dev_loss, epoch * len(data_iter) + i)
                     logger.add_scalar(f"acc/dev", dev_acc, epoch * len(data_iter) + i)

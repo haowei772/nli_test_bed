@@ -52,6 +52,7 @@ class Transformer(nn.Module):
         return self.encoder(x)
 
 
+
 class TransformerEncoderInterAttn(nn.Module):
     def __init__(self, config):
         super(TransformerEncoderInterAttn, self).__init__()

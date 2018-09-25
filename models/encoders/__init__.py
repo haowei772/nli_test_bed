@@ -21,15 +21,12 @@ encoders = {
 Main encoder class
 '''
 class Encoder(nn.Module):
-    def __init__(self, config):
-        super(Encoder, self).__init__()
-        if not config.encoder:
-            raise NotImplementedError("'encoder' not defined in config")
+    def __init__(self, encoder_name, config):
+        super(Encoder, self).__init__()        
+        if encoder_name not in encoders:
+            raise NotImplementedError(f"encoder '{encoder_name}' not implemented")
         
-        if config.encoder not in encoders:
-            raise NotImplementedError(f"encoder '{config.encoder}' not implemented")
-        
-        self.encoder = encoders[config.encoder](config)
+        self.encoder = encoders[encoder_name](config)
     
     def forward(self, x):
         """
