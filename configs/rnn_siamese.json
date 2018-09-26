@@ -4,8 +4,8 @@
         "eval_every_n_batch": 100,
         "save_model": true,
         "save_path": "results",
-        "restore_model": true,
-        "restore_path": "results/best_snapshot_rnn__20180926-050158_acc_71.42__iter_1_model.pt",
+        "restore_model": false,
+        "restore_path": "results/best_snapshot_rnn__20180925-170744_acc_50.00__iter_0_model.pt",
         "log_path": "runs"
     },
     "DATA": {
@@ -34,9 +34,9 @@
         "apply_weight_embed": true
     },
     "ARCHITECTURE": {
-        "siamese": false,
+        "siamese": true,
         "encoder": ["rnn"],
-        "attention": ["attention_vanilla"],
+        "attention": [],
         "aggregator": "linear_aggregate",
         "reducer": "mean",
         "rnn_cell":"lstm",
