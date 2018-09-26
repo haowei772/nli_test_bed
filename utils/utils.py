@@ -96,7 +96,8 @@ def parse_args_get_config():
 	config = config_flat
 
 	# ----- generate this run name -----
-	run_name = args.config[:args.config.rfind(".")] + "__" + time.strftime("%Y%m%d-%H%M%S")
+	model_name = "_".join(config['encoder'])
+	run_name = model_name + "__" + time.strftime("%Y%m%d-%H%M%S")
 
 	# ----- add info from argparser -----
 	config.update({
@@ -107,22 +108,6 @@ def parse_args_get_config():
 
 	return dotdict(config)
 
-
-class ResultLogger(object):
-    def __init__(self, path, *args, **kwargs):
-        if 'time' not in kwargs:
-            kwargs['time'] = time.time()
-        self.f_log = open(make_path(path), 'w')
-        self.f_log.write(json.dumps(kwargs)+'\n')
-
-    def log(self, **kwargs):
-        if 'time' not in kwargs:
-            kwargs['time'] = time.time()
-        self.f_log.write(json.dumps(kwargs)+'\n')
-        self.f_log.flush()
-
-    def close(self):
-        self.f_log.close()
 
 def make_path(f):
     d = os.path.dirname(f)

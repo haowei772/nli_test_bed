@@ -8,12 +8,12 @@ from tqdm import tqdm
 
 def save_model(model, config, acc, iterations):
     snapshot_prefix = os.path.join(config.save_path, 'best_snapshot')
-    snapshot_path = snapshot_prefix + config.run_name + '_acc_{:.2f}__iter_{}_model.pt'.format(acc, iterations)
+    snapshot_path = snapshot_prefix + "_" + config.run_name + '_acc_{:.2f}__iter_{}_model.pt'.format(acc, iterations)
     make_path(config.save_path)
 
     # save model, delete previous 'best_snapshot' files
     torch.save(model.state_dict(), snapshot_path)
-    for f in glob.glob(snapshot_prefix + '*'):
+    for f in glob.glob(snapshot_prefix + "_" + config.run_name + '*'):
         if f != snapshot_path:
             os.remove(f)
 
