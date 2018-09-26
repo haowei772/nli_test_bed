@@ -62,14 +62,13 @@ def main():
             # ----- train -----
             model.train()
             run_epoch(logger, config, i, data.train_iter, model, loss_compute, 
-                device, dev_iter=data.dev_iter, dev_loss_compute=loss_compute_dev,
-                mode='train', log=True)
+                device, mode='train')
 
             # ----- dev -----
             model.eval()
             with torch.no_grad():
                 dev_acc, dev_loss = run_epoch(logger, config, i, data.dev_iter, 
-                    model, loss_compute_dev, device, mode='eval', log=False)
+                    model, loss_compute_dev, device, mode='dev')
                 if dev_acc > best_dev_acc:
                     best_dev_acc = dev_acc
                     if config.save_model:
@@ -77,8 +76,8 @@ def main():
             
             # ----- test -----
             with torch.no_grad():
-                test_acc, test_loss = run_epoch(logger, config, 0, data.test_iter, 
-                    model, loss_compute_dev, device, mode='test', log=False)
+                run_epoch(logger, config, i, data.test_iter, 
+                    model, loss_compute_dev, device, mode='test')
 
     
     # ----- test mode -----
@@ -87,7 +86,9 @@ def main():
         model.eval()
         with torch.no_grad():
             test_acc, test_loss = run_epoch(logger, config, 0, data.test_iter, 
-                model, loss_compute_dev, device, mode='test', log=False)
+                model, loss_compute_dev, device, mode='test')
+            print("Test loss: ", test_loss)
+            print("Test acc: ", test_acc)
     
 
     # ----- interactive mode -----

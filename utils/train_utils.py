@@ -54,8 +54,7 @@ def set_seed(config):
     torch.cuda.manual_seed_all(config.seed)
 
 
-def run_epoch(logger, config, epoch, data_iter, model, loss_compute, device, 
-        dev_iter=None, dev_loss_compute=None, mode='train', log=True):
+def run_epoch(logger, config, epoch, data_iter, model, loss_compute, device, mode='train'):
     """ Training function
     """
     start = time.time()
@@ -76,22 +75,6 @@ def run_epoch(logger, config, epoch, data_iter, model, loss_compute, device,
         n_total += batch.batch_size
         acc = 100. * n_correct/n_total
 
-        # ----- log ----- 
-        if log and i % config.print_every_n_batch == 1:
-            logger.add_scalar(f"loss/{mode}", total_loss, epoch * len(data_iter) + i)
-            logger.add_scalar(f"acc/{mode}", acc, epoch * len(data_iter) + i)
-
-            # ----- dev ----- 
-            if dev_iter:
-                with torch.no_grad():
-                    model.eval()
-                    dev_acc, dev_loss = run_epoch(logger, config, i, dev_iter, 
-                        model, dev_loss_compute, device, dev_iter=None, 
-                        dev_loss_compute=None, mode='dev', log=False)
-                        
-                    model.train()
-                    logger.add_scalar(f"loss/dev", dev_loss, epoch * len(data_iter) + i)
-                    logger.add_scalar(f"acc/dev", dev_acc, epoch * len(data_iter) + i)
         
         del loss, out
 
@@ -102,6 +85,6 @@ def run_epoch(logger, config, epoch, data_iter, model, loss_compute, device,
 
     logger.add_scalar(f"loss/{mode}", loss, epoch * len(data_iter) + i)
     logger.add_scalar(f"acc/{mode}", acc_total, epoch * len(data_iter) + i)
-    # logger.log(mode=mode, epoch=epoch, acc_total=acc_total, loss=loss, elapsed=elapsed )
+
     
     return acc_total, loss
