@@ -24,11 +24,14 @@ class Attention(nn.Module):
         
         self.attention = attentions[attention_name](config)
     
+    def draw_attentions(self, premise, hypothesis, name=""):
+        self.attention.draw_attentions(premise, hypothesis, name)
+    
     def forward(self, x, context=None):
         """
         x=query
         context=key=value
-        
+
         x (batch_size, _ ,d_hidden)
         context (batch_size, _ ,d_hidden)
         output (batch_size, _ ,d_hidden)

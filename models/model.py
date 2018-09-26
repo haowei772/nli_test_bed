@@ -61,7 +61,16 @@ class Model(nn.Module):
 
         # aggregator
         self.aggregate = Aggregator(config.aggregator, config)
-            
+
+
+    def draw(self, premise, hypothesis):
+        if self.attentions_p is not None and self.attentions_h is not None:
+            for attn in self.attentions_h:
+                attn.draw_attentions(hypothesis, premise, "hypothesis")
+
+            if not self.siamese:
+                for attn in self.attentions_p:
+                    attn.draw_attentions(premise, hypothesis, "premise")
 
     
     def forward(self, batch):

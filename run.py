@@ -36,8 +36,9 @@ def main():
     model = get_model(config, data.vocab)
     if config.restore_model:
         print("restoring")
-        restore_model(model, config.restore_path)
+        restore_model(model, config.restore_path, device)
     model.to(device)
+    print(model)
 
     # ----- create criterion -----
     print("Loading criterion")
@@ -51,7 +52,7 @@ def main():
     print("Loading loss compute function")
     loss_compute = get_loss_compute(config, criterion, optimizer)
     loss_compute_dev = get_loss_compute(config, criterion, None)
-    
+
     # ----- train mode -----
     if config.mode == 'train':
         print("Training")
@@ -68,7 +69,7 @@ def main():
             model.eval()
             with torch.no_grad():
                 dev_acc, dev_loss = run_epoch(logger, config, i, data.dev_iter, 
-                    model, loss_compute_dev, device, mode='eval')
+                    model, loss_compute_dev, device, mode='eval', log=False)
                 if dev_acc > best_dev_acc:
                     best_dev_acc = dev_acc
                     if config.save_model:
@@ -107,9 +108,8 @@ def main():
             sent_h = hypothesis.split()
 
             scores = model(mbatch)
-
-            model.encode_p.draw_attentions(sent_p, sent_h)
-            model.encode_h.draw_attentions(sent_h, sent_p)
+            
+            model.draw(sent_p, sent_h)
 
     logger.close()
 

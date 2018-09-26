@@ -1,6 +1,9 @@
 import torch
 import torch.nn as nn
 from torch.nn.parameter import Parameter
+import matplotlib.pyplot as plt
+from time import gmtime, strftime
+from utils.model_utils import clones, draw
 
 class AttentionMultihead(nn.Module):
     def __init__(self, cfg, scale=False):
@@ -16,6 +19,7 @@ class AttentionMultihead(nn.Module):
         self.attn_dropout = nn.Dropout(cfg.attn_pdrop)
         self.resid_dropout = nn.Dropout(cfg.resid_pdrop)
         self.attn = None
+        self.config = cfg
 
     def _attn(self, q, k, v):
         w = torch.matmul(q, k)
@@ -38,6 +42,15 @@ class AttentionMultihead(nn.Module):
             return x.permute(0, 2, 3, 1)
         else:
             return x.permute(0, 2, 1, 3)
+    
+    def draw_attentions(self, sent1, sent2, name=""):
+        if self.attn is None: return
+
+        for h in range(self.n_head):
+            fig, axs = plt.subplots(1,1, figsize=(10, 10))
+            draw(self.attn[0, h].data,sent1, sent2, ax=axs)
+            fig.savefig(self.config.save_path + "/" + f"{strftime('%H:%M:%S', gmtime())}_attn_head_{h}_{name}.png")
+            plt.close(fig)
 
     def forward(self, x, context=None):
         query = x

@@ -1,6 +1,9 @@
 import torch
 import torch.nn as nn
 import torch.nn.functional as F
+import matplotlib.pyplot as plt
+from time import gmtime, strftime
+from utils.model_utils import clones, draw
 
 class AttentionVanilla(nn.Module):
     """
@@ -8,6 +11,7 @@ class AttentionVanilla(nn.Module):
     """
     def __init__(self, config):
         super(AttentionVanilla, self).__init__()
+        self.config = config
         dim = config.hidden_size
         self.linear_out = nn.Linear(dim*2, dim)
         self.mask = None
@@ -20,6 +24,14 @@ class AttentionVanilla(nn.Module):
             mask (torch.Tensor): tensor containing indices to be masked
         """
         self.mask = mask
+    
+    def draw_attentions(self, sent1, sent2, name=""):
+        if self.attn is None: return
+        
+        fig, axs = plt.subplots(1,1, figsize=(10, 10))
+        draw(self.attn[0].data, sent1, sent2 , ax=axs)
+        fig.savefig(self.config.save_path + "/" + f"{strftime('%H:%M:%S', gmtime())}_attn_head_0_{name}.png")
+        plt.close(fig)
 
     def forward(self, x, context):
         batch_size = x.size(0)
