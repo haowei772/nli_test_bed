@@ -42,7 +42,7 @@
         "rnn_cell":"lstm",
         "birnn": false,
         "d_proj": 300,
-        "n_layers": 1,
+        "n_layers": 4,
         "n_cells": 1,
         "d_hidden": 100,
         "d_transformer": 100,
