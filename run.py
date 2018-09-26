@@ -38,6 +38,8 @@ def main():
         print("restoring")
         restore_model(model, config.restore_path, device)
     model.to(device)
+    pytorch_total_params = sum(p.numel() for p in model.parameters() if p.requires_grad)
+    print("Total params: ", pytorch_total_params)
     print(model)
 
     # ----- create criterion -----
