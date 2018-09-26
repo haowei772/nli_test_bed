@@ -249,20 +249,20 @@ class Block(nn.Module):
     def forward(self, x):
         a = self.attn(x)
 
-        if cfg.use_residual:
+        if self.cfg.use_residual:
             a = x + a
 
-        if cfg.layer_norm:
+        if self.cfg.layer_norm:
             n = self.ln_1(a)
         else:
             n = a
 
         m = self.mlp(n)
 
-        if cfg.use_residual:
+        if self.cfg.use_residual:
             m = n + m
 
-        if cfg.layer_norm:
+        if self.cfg.layer_norm:
             h = self.ln_2(m)
         else:
             h = m
