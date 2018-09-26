@@ -100,6 +100,8 @@ def run_epoch(logger, config, epoch, data_iter, model, loss_compute, device,
     acc_total = n_correct/n_total*100
     loss = total_loss/len(data_iter)
 
+    logger.add_scalar(f"loss/{mode}", loss, epoch * len(data_iter) + i)
+    logger.add_scalar(f"acc/{mode}", acc_total, epoch * len(data_iter) + i)
     # logger.log(mode=mode, epoch=epoch, acc_total=acc_total, loss=loss, elapsed=elapsed )
     
     return acc_total, loss

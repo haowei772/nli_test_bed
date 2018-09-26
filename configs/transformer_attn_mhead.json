@@ -30,7 +30,7 @@
         "vector_cache": ".vector_cache/input_vectors.pt",
         "d_embed": 100,
         "train_embed": true,
-        "positional_encoding": false,
+        "positional_encoding": true,
         "apply_weight_embed": true
     },
     "ARCHITECTURE": {

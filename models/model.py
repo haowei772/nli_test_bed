@@ -102,7 +102,7 @@ class Model(nn.Module):
             hypothesis_encoded_attended = hypothesis_encoded
             for attn_p, attn_h in zip(self.attentions_p, self.attentions_h):
                 premise_encoded_attended = attn_p(premise_encoded_attended, hypothesis_encoded)
-                hypothesis_encoded_attended = attn_p(hypothesis_encoded_attended, premise_encoded)
+                hypothesis_encoded_attended = attn_h(hypothesis_encoded_attended, premise_encoded)
             premise_encoded = premise_encoded_attended
             hypothesis_encoded = hypothesis_encoded_attended
 

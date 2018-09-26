@@ -5,7 +5,7 @@
         "save_model": true,
         "save_path": "results",
         "restore_model": false,
-        "restore_path": "results/best_snapshot_acc_25__iter_0_model.pt",
+        "restore_path": "results/best_snapshot_rnn__20180926-034020_acc_70.35__iter_0_model.pt",
         "log_path": "runs"
     },
     "DATA": {
@@ -49,6 +49,9 @@
         "hidden_size": 100,
         "input_size": 100,
         "dp_ratio": 0.2,
-        "dropout_pe": 0.2
+        "dropout_pe": 0.2,
+        "attn_pdrop": 0.1,
+        "resid_pdrop": 0.1,
+        "afn": "gelu"
     }
 }

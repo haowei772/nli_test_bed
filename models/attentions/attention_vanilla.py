@@ -29,7 +29,7 @@ class AttentionVanilla(nn.Module):
         if self.attn is None: return
         
         fig, axs = plt.subplots(1,1, figsize=(10, 10))
-        draw(self.attn[0].data, sent1, sent2 , ax=axs)
+        draw(self.attn[0].data, sent2, sent1 , ax=axs)
         fig.savefig(self.config.save_path + "/" + f"{strftime('%H:%M:%S', gmtime())}_attn_head_0_{name}.png")
         plt.close(fig)
 

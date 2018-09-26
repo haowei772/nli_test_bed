@@ -5,7 +5,7 @@
         "save_model": true,
         "save_path": "results",
         "restore_model": true,
-        "restore_path": "results/best_snapshot_rnn__20180925-171355_acc_50.00__iter_0_model.pt",
+        "restore_path": "results/best_snapshot_rnn__20180926-022008_acc_71.99__iter_3_model.pt",
         "log_path": "runs"
     },
     "DATA": {
