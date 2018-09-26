@@ -34,7 +34,7 @@
         "apply_weight_embed": true
     },
     "ARCHITECTURE": {
-        "siamese": false,
+        "siamese": true,
         "encoder": ["transformer"],
         "attention": [],
         "aggregator": "linear_aggregate",
