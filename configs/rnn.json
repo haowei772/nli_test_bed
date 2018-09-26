@@ -4,8 +4,8 @@
         "eval_every_n_batch": 100,
         "save_model": true,
         "save_path": "results",
-        "restore_model": false,
-        "restore_path": "results/best_snapshot_acc_25__iter_0_model.pt",
+        "restore_model": true,
+        "restore_path": "results/best_snapshot_rnn__20180925-170744_acc_50.00__iter_0_model.pt",
         "log_path": "runs"
     },
     "DATA": {
@@ -35,7 +35,7 @@
     },
     "ARCHITECTURE": {
         "siamese": false,
-        "encoder": ["transformer"],
+        "encoder": ["rnn"],
         "attention": [],
         "aggregator": "linear_aggregate",
         "reducer": "mean",
@@ -45,15 +45,9 @@
         "n_layers": 1,
         "n_cells": 1,
         "d_hidden": 100,
-        "d_transformer": 100,
-        "d_ff_transformer": 2048,
-        "n_head":10,
         "hidden_size": 100,
         "input_size": 100,
         "dp_ratio": 0.2,
-        "dropout_pe": 0.2,
-        "attn_pdrop": 0.1,
-        "resid_pdrop": 0.1,
-        "afn": "gelu"
+        "dropout_pe": 0.2
     }
 }

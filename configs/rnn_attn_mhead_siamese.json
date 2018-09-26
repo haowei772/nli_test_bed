@@ -2,7 +2,7 @@
     "MISC": {
         "print_every_n_batch": 100,
         "eval_every_n_batch": 100,
-        "save_model": false,
+        "save_model": true,
         "save_path": "results",
         "restore_model": false,
         "restore_path": "results/best_snapshot_acc_25__iter_0_model.pt",
@@ -36,7 +36,7 @@
     "ARCHITECTURE": {
         "siamese": true,
         "encoder": ["rnn"],
-        "attention": ["attention_vanilla"],
+        "attention": ["attention_multihead"],
         "aggregator": "linear_aggregate",
         "reducer": "mean",
         "rnn_cell":"lstm",
