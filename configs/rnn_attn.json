@@ -4,7 +4,7 @@
         "eval_every_n_batch": 100,
         "save_model": true,
         "save_path": "results",
-        "restore_model": true,
+        "restore_model": false,
         "restore_path": "results/best_snapshot_rnn__20180926-022008_acc_71.99__iter_3_model.pt",
         "log_path": "runs"
     },
