@@ -5,23 +5,36 @@ Since there is no standard architecture for NLI, we have integrated all the mode
 
 Note that this repo is not optimized for speed.
 
-![Siamese Natural Language Inference](assets/nli_siamese.png)
-![Natural Language Inference](assets/nli.png)
+Two archietctures used in this code:
+
+![Natural Language Inference Arch 1](assets/nli1.png)
+
+
+![Natural Language Inference Arch 2](assets/nli2.png)
 
 
 # Requirement
 
 # Usage
 
+First create a virtualenv and install the requirements:
     pip install -r requirements.txt
     python -m spacy download en
-    python run.py [MODE] [MODEL]
 
-MODE: train, test, visualize 
-MODEL: TRANSFORMER_INTER_ATTENTION, TRANSFORMER, LSTM
+Then you can run the model:
+    python run.py [MODE] [CONFIG_FILE]
+
+`MODE` is one of the `train`, `test`, or `interactive`. `CONFIG_FILE` is the path to the config file.
+
+## Interactive
+    python run.py interactive configs/rnn_attn.json
+
+make sure `restore_model` is set to true and a valid `restore_path` is provided.
 
 
-When changing dataset, change the vector cache file
+
+
+
 
 # Acknowledgment
 - https://github.com/harvardnlp/annotated-transformer
