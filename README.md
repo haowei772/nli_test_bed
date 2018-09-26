@@ -18,18 +18,29 @@ Two archietctures used in this code:
 # Usage
 
 First create a virtualenv and install the requirements:
+
     pip install -r requirements.txt
     python -m spacy download en
 
 Then you can run the model:
+
     python run.py [MODE] [CONFIG_FILE]
 
 `MODE` is one of the `train`, `test`, or `interactive`. `CONFIG_FILE` is the path to the config file.
 
+## Test
+Example:
+
+    python run.py test configs/rnn_attn.json
+
+make sure `restore_model` is set to true and a valid model is provided in `restore_path`.
+
 ## Interactive
+Example:
+
     python run.py interactive configs/rnn_attn.json
 
-make sure `restore_model` is set to true and a valid `restore_path` is provided.
+make sure `restore_model` is set to true and a valid model is provided in `restore_path`.
 
 
 
