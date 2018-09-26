@@ -239,6 +239,7 @@ class MLP(nn.Module):
 class Block(nn.Module):
     def __init__(self, cfg, scale=False):
         super(Block, self).__init__()
+        self.cfg = cfg
         nx = cfg.d_embed
         self.attn = Attention(nx, cfg, scale)
         self.ln_1 = LayerNorm(nx)
@@ -247,9 +248,25 @@ class Block(nn.Module):
 
     def forward(self, x):
         a = self.attn(x)
-        n = self.ln_1(x + a)
+
+        if cfg.use_residual:
+            a = x + a
+
+        if cfg.layer_norm:
+            n = self.ln_1(a)
+        else:
+            n = a
+
         m = self.mlp(n)
-        h = self.ln_2(n + m)
+
+        if cfg.use_residual:
+            m = n + m
+
+        if cfg.layer_norm:
+            h = self.ln_2(m)
+        else:
+            h = m
+
         return h
 
 class BlockInterAttn(nn.Module):
