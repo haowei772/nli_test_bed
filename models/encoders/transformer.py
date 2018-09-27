@@ -47,9 +47,13 @@ class Transformer(nn.Module):
             if p.dim() > 1:
                 nn.init.xavier_uniform_(p)
     
+    def draw_self_attentions(self, x):
+        self.encoder.draw_self_attentions(x)
+    
     def forward(self, x):
 
         return self.encoder(x)
+    
 
 
 
@@ -103,14 +107,14 @@ class TransformerEncoder(nn.Module):
 
         return h
     
-    # def draw_self_attentions(self, sent):
-    #     for layer in range(len(self.encoder.layers)):
-    #         fig, axs = plt.subplots(1,self.config.h_transformer, figsize=(20, 10))
-    #         for h in range(self.config.h_transformer):
-    #             draw(self.encoder.layers[layer].self_attn.attn[0, h].data, 
-    #                 sent, sent if h ==0 else [], ax=axs[h])
-    #         fig.savefig(self.config.save_path + "/" + f"{strftime('%H:%M:%S', gmtime())}_self_attn_layer_{layer}.png")
-    #         plt.close(fig)
+    def draw_self_attentions(self, sent):
+        for layer in range(len(self.layers)):
+            fig, axs = plt.subplots(1,self.config.n_head, figsize=(20, 10))
+            for h in range(self.config.n_head):
+                draw(self.layers[layer].attn.attn[0, h].data, 
+                    sent, sent if h ==0 else [], ax=axs[h])
+            fig.savefig(self.config.save_path + "/" + f"{strftime('%H:%M:%S', gmtime())}_self_attn_layer_{layer}.png")
+            plt.close(fig)
 
 
 

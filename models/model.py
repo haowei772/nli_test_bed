@@ -72,6 +72,11 @@ class Model(nn.Module):
                 for attn in self.attentions_p:
                     attn.draw_attentions(premise, hypothesis, "premise")
 
+        for enc_p, enc_h in zip(self.encoders_p, self.encoders_h):
+            enc_p.draw_attentions(premise, hypothesis)
+            enc_h.draw_attentions(hypothesis, premise)
+
+
     
     def forward(self, batch):
 
