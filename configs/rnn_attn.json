@@ -4,7 +4,7 @@
         "eval_every_n_batch": 100,
         "save_model": true,
         "save_path": "results",
-        "restore_model": true,
+        "restore_model": false,
         "restore_path": "results/best_snapshot_rnn__20180926-050158_acc_71.42__iter_1_model.pt",
         "log_path": "runs"
     },
@@ -34,20 +34,99 @@
         "apply_weight_embed": true
     },
     "ARCHITECTURE": {
-        "siamese": false,
-        "encoder": ["rnn"],
-        "attention": ["attention_vanilla"],
-        "aggregator": "linear_aggregate",
-        "reducer": "mean",
-        "rnn_cell":"lstm",
-        "birnn": false,
-        "d_proj": 300,
-        "n_layers": 1,
-        "n_cells": 1,
-        "d_hidden": 100,
-        "hidden_size": 100,
-        "input_size": 100,
-        "dp_ratio": 0.2,
-        "dropout_pe": 0.2
+        "name": "rnn_attention_vanilla",
+        "nx": 2,
+        "structure": [
+            "layer_1",
+            "layer_2"
+        ],
+        "layers": {
+            "layer_1": {
+                "h": {
+                    "name": "rnn",
+                    "inputs": ["h"],
+                    "outputs": [{"name":"h_rnn"}],
+                    "config": {
+                        "rnn_cell": "lstm",
+                        "birnn": false,
+                        "n_layers": 1,
+                        "input_size": 100,
+                        "hidden_size": 100,
+                        "dp_ratio": 0.1
+                    }
+                },
+                "p": {
+                    "name": "rnn",
+                    "inputs": ["p"],
+                    "outputs": [{"name":"p_rnn"}],
+                    "config": {
+                        "rnn_cell": "lstm",
+                        "birnn": false,
+                        "n_layers": 1,
+                        "input_size": 100,
+                        "hidden_size": 100,
+                        "dp_ratio": 0.1
+                    }
+                }
+            },
+            "layer_2": {
+                "h":{
+                    "name":"attention_vanilla",
+                    "inputs": ["h_rnn", "p_rnn"],
+                    "outputs": [
+                        {
+                            "name":"h",
+                            "res_connection_add": ["h_rnn"],
+                            "res_connection_concat": []
+                        }
+                    ],
+                    "config": {
+                        "hidden_size": 100,
+                        "save_path": "results"
+                    }
+                },
+                "p":{
+                    "name":"attention_vanilla",
+                    "inputs": ["p_rnn", "h_rnn"],
+                    "outputs": [
+                        {
+                            "name":"p",
+                            "res_connection_add": ["p_rnn"],
+                            "res_connection_concat": []
+                        }
+                    ],
+                    "config": {
+                        "hidden_size": 100,
+                        "save_path": "results"
+                    }
+                }
+            }
+        },
+        "reducer":{
+            "h": {
+                "name": "mean",
+                "inputs": ["h"],
+                "outputs": [{"name": "h_reduced"}],
+                "config": {},
+                "share": true
+            },
+            "p": {
+                "name": "mean",
+                "inputs": ["p"],
+                "outputs": [{"name": "p_reduced"}],
+                "config": {},
+                "share": true
+            }
+        },
+        "aggregator": {
+            "name": "linear_aggregate",
+            "inputs": ["h_reduced", "p_reduced"],
+            "outputs": [{"name":"scores"}],
+            "config": {
+                "dp_ratio": 0.1,
+                "d_hidden": 100,
+                "d_out": 3
+            }
+        }
     }
 }

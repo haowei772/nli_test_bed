@@ -67,7 +67,7 @@ class AttentionMultihead(nn.Module):
         a = self.merge_heads(a)
         a = self.c_proj(a)
         a = self.resid_dropout(a)
-        return a
+        return (a)
 
 class Conv1D(nn.Module):
     def __init__(self, nf, rf, nx):

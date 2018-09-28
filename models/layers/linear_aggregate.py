@@ -10,9 +10,8 @@ class LinearAggregate(nn.Module):
         self.dropout = nn.Dropout(p=config.dp_ratio)
         self.relu = nn.ReLU()
 
-        seq_in_size = 2*config.d_hidden
-        if config.birnn:
-            seq_in_size *= 2
+        seq_in_size = 4*config.d_hidden
+
         lin_config = [seq_in_size]*2
 
         self.aggregator = nn.Sequential(
@@ -27,5 +26,6 @@ class LinearAggregate(nn.Module):
             self.dropout,
             Linear(seq_in_size, config.d_out))
 
-    def forward(self, x):
-        return self.aggregator(x)
+    def forward(self, x, y):
+        x_and_y = torch.cat([x,y,x-y,x*y],-1)
+        return [self.aggregator(x_and_y)]

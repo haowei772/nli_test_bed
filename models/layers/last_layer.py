@@ -8,4 +8,4 @@ class LastLayer(nn.Module):
     
     def forward(self, input):
         output = input[..., -1]
-        return output
+        return [output]

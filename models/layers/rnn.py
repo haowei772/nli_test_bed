@@ -26,4 +26,4 @@ class RNN(nn.Module):
 
     def forward(self, x):
         output_x, (hx, cx) = self.rnn(x)
-        return output_x
+        return [output_x]

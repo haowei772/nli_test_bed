@@ -5,7 +5,7 @@
         "save_model": true,
         "save_path": "results",
         "restore_model": false,
-        "restore_path": "results/best_snapshot_rnn__20180925-170744_acc_50.00__iter_0_model.pt",
+        "restore_path": "results/best_snapshot_rnn__20180926-050158_acc_71.42__iter_1_model.pt",
         "log_path": "runs"
     },
     "DATA": {
@@ -34,20 +34,67 @@
         "apply_weight_embed": true
     },
     "ARCHITECTURE": {
-        "siamese": false,
-        "encoder": ["rnn"],
-        "attention": [],
-        "aggregator": "linear_aggregate",
-        "reducer": "mean",
-        "rnn_cell":"lstm",
-        "birnn": false,
-        "d_proj": 300,
-        "n_layers": 1,
-        "n_cells": 1,
-        "d_hidden": 100,
-        "hidden_size": 100,
-        "input_size": 100,
-        "dp_ratio": 0.2,
-        "dropout_pe": 0.2
+        "name": "rnn",
+        "nx": 2,
+        "structure": [
+            "layer_1",
+            "layer_2"
+        ],
+        "layers": {
+            "layer_1": {
+                "h": {
+                    "name": "rnn",
+                    "inputs": ["h"],
+                    "outputs": [{"name":"h"}],
+                    "config": {
+                        "rnn_cell": "lstm",
+                        "birnn": false,
+                        "n_layers": 1,
+                        "input_size": 100,
+                        "hidden_size": 100,
+                        "dp_ratio": 0.1
+                    }
+                },
+                "p": {
+                    "name": "rnn",
+                    "inputs": ["p"],
+                    "outputs": [{"name":"p"}],
+                    "config": {
+                        "rnn_cell": "lstm",
+                        "birnn": false,
+                        "n_layers": 1,
+                        "input_size": 100,
+                        "hidden_size": 100,
+                        "dp_ratio": 0.1
+                    }
+                }
+            }
+        },
+        "reducer":{
+            "h": {
+                "name": "mean",
+                "inputs": ["h"],
+                "outputs": [{"name": "h_reduced"}],
+                "config": {},
+                "share": true
+            },
+            "p": {
+                "name": "mean",
+                "inputs": ["p"],
+                "outputs": [{"name": "p_reduced"}],
+                "config": {},
+                "share": true
+            }
+        },
+        "aggregator": {
+            "name": "linear_aggregate",
+            "inputs": ["h_reduced", "p_reduced"],
+            "outputs": [{"name":"scores"}],
+            "config": {
+                "dp_ratio": 0.1,
+                "d_hidden": 300,
+                "d_out": 3
+            }
+        }
     }
 }

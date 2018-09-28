@@ -51,5 +51,7 @@ class AttentionVanilla(nn.Module):
 
         # x -> (batch, out_len, dim)
         x = torch.tanh(self.linear_out(combined.view(-1, 2 * hidden_size))).view(batch_size, -1, hidden_size)
+        
         self.attn = attn
-        return x
+        
+        return [x]

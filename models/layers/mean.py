@@ -8,4 +8,4 @@ class Mean(nn.Module):
 
     def forward(self, input, dim=1):
         output = torch.mean(input, dim)
-        return output
+        return [output]

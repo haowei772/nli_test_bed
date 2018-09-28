@@ -52,7 +52,7 @@ class Transformer(nn.Module):
     
     def forward(self, x):
 
-        return self.encoder(x)
+        return (self.encoder(x))
     
 
 

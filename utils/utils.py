@@ -96,8 +96,7 @@ def parse_args_get_config():
 	config = config_flat
 
 	# ----- generate this run name -----
-	model_name = "_".join(config['encoder'])
-	run_name = model_name + "__" + time.strftime("%Y%m%d-%H%M%S")
+	run_name = config['name'] + "__" + time.strftime("%Y%m%d-%H%M%S")
 
 	# ----- add info from argparser -----
 	config.update({

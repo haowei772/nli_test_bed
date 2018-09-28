@@ -2,13 +2,6 @@
 This is a testbed for comparing various deep learning models in the context of Natural Language Inference (NLI) implemented in [PyTorch](http://pytorch.org).
 
 
-Two archietctures used in this code:
-
-![Natural Language Inference Arch 1](assets/nli1.png)
-
-
-![Natural Language Inference Arch 2](assets/nli2.png)
-
 
 # Requirement
 
