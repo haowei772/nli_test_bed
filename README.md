@@ -1,9 +1,9 @@
 # Natural Language Inference Test Bed
 This is a testbed for comparing various deep learning models in the context of Natural Language Inference (NLI) implemented in [PyTorch](http://pytorch.org).
 
+Below is the general architecture used:
 
-
-# Requirement
+![Natural Language Inference](assets/nli_test_bed_arch.png)
 
 # Usage
 
@@ -37,30 +37,37 @@ make sure `restore_model` is set to true and a valid model is provided in `resto
 Models are designed in `ARCHITECTURE` section of the config file. Below are its main components:
 
 `name`: name of the model. Results are saved with this name.
+
 `nx`: the number of times `layers` in `structure` are repeated. Note that for each repitition new parameters are created so they don't share parameters across iterations.
+
 `layers`: layers are defined in here.
+
 `structure`: a list containing the order of the layers.
+
 `reducer`: reducers are any kind of models that reduce the sequence length to a fixed length so that they can be fed into the aggregation layer.
+
 `aggregator`: this model gets the encoded premise and encoded hypothesis and gives the final classification scores.
 
 ### Define a layer
 There is a `vector` dictionary which is passed into any layer/module and contains all the arrays up to that point. Therefor all the inputs for a specific layer are taken from this dictionary and then the outputs of that layer are used to update the dictionary.
 
 Each layer can have any number of inputs and any number of outputs. We define these inputs and outputs when we are defining a layer.
-A layer is defined as follow:
+A layer is defined as following:
 ```
-"name":"attention_vanilla",
-"inputs": ["h_rnn", "p_rnn"],
-"outputs": [
-    {
-        "name":"h",
-        "res_connection_add": ["h_rnn"],
-        "res_connection_concat": []
+"layer_2": {
+    "name":"attention_vanilla",
+    "inputs": ["h_rnn", "p_rnn"],
+    "outputs": [
+        {
+            "name":"h",
+            "res_connection_add": ["h_rnn"],
+            "res_connection_concat": []
+        }
+    ],
+    "config": {
+        "hidden_size": 100,
+        "save_path": "results"
     }
-],
-"config": {
-    "hidden_size": 100,
-    "save_path": "results"
 }
 ```
 
