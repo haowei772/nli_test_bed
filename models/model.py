@@ -186,7 +186,7 @@ class Model(nn.Module):
                 elif not isinstance(layer_c, Dummy):
 
                     self.update(vectors, layer_c, layer_info)
-
+                
 
 
 

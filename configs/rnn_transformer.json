@@ -1,0 +1,130 @@
+{
+    "MISC": {
+        "print_every_n_batch": 100,
+        "eval_every_n_batch": 100,
+        "save_model": true,
+        "save_path": "results",
+        "restore_model": false,
+        "restore_path": "results/best_snapshot_rnn__20180926-050158_acc_71.42__iter_1_model.pt",
+        "log_path": "runs"
+    },
+    "DATA": {
+        "dataset": "snli",
+        "tokenize": false,
+        "max_len": 500
+    },
+    "TRAIN" : {
+        "mode": "train",
+        "seed": 42,
+        "gpu": 0,
+        "epochs": 50,
+        "lr": 0.001,
+        "batch_size": 128,
+        "criterion": "cross_entropy_loss",
+        "optimizer": "adam",
+        "loss_compute": "simple_loss_compute",
+        "eps": 1e-6
+    },
+    "EMBEDDING": {
+        "word_vectors": "glove.6B.100d",
+        "vector_cache": ".vector_cache/input_vectors.pt",
+        "d_embed": 100,
+        "train_embed": true,
+        "positional_encoding": false,
+        "apply_weight_embed": true
+    },
+    "ARCHITECTURE": {
+        "name": "rnn_transformer",
+        "nx": 2,
+        "structure": [
+            "layer_1",
+            "layer_2"
+        ],
+        "layers": {
+            "layer_1": {
+                "h": {
+                    "name": "rnn",
+                    "inputs": ["h"],
+                    "outputs": [{"name":"h"}],
+                    "config": {
+                        "rnn_cell": "lstm",
+                        "birnn": false,
+                        "n_layers": 1,
+                        "input_size": 100,
+                        "hidden_size": 100,
+                        "dp_ratio": 0.1
+                    }
+                },
+                "p": {
+                    "name": "rnn",
+                    "inputs": ["p"],
+                    "outputs": [{"name":"p"}],
+                    "config": {
+                        "rnn_cell": "lstm",
+                        "birnn": false,
+                        "n_layers": 1,
+                        "input_size": 100,
+                        "hidden_size": 100,
+                        "dp_ratio": 0.1
+                    }
+                }
+            },
+            "layer_2": {
+                "h": {
+                    "name": "transformer",
+                    "inputs": ["h"],
+                    "outputs": [{"name":"h"}],
+                    "config": {
+                        "d_embed": 100,
+                        "use_residual": false,
+                        "layer_norm": false,
+                        "n_head": 5,
+                        "attn_pdrop": 0.1,
+                        "resid_pdrop": 0.1,
+                        "afn": "gelu"
+                    }
+                },
+                "p": {
+                    "name": "transformer",
+                    "inputs": ["p"],
+                    "outputs": [{"name":"p"}],
+                    "config": {
+                        "d_embed": 100,
+                        "use_residual": false,
+                        "layer_norm": false,
+                        "n_head": 5,
+                        "attn_pdrop": 0.1,
+                        "resid_pdrop": 0.1,
+                        "afn": "gelu"
+                    }
+                }
+            }
+        },
+        "reducer":{
+            "h": {
+                "name": "mean",
+                "inputs": ["h"],
+                "outputs": [{"name": "h_reduced"}],
+                "config": {},
+                "share": true
+            },
+            "p": {
+                "name": "mean",
+                "inputs": ["p"],
+                "outputs": [{"name": "p_reduced"}],
+                "config": {},
+                "share": true
+            }
+        },
+        "aggregator": {
+            "name": "linear_aggregate",
+            "inputs": ["h_reduced", "p_reduced"],
+            "outputs": [{"name":"scores"}],
+            "config": {
+                "dp_ratio": 0.1,
+                "d_hidden": 100,
+                "d_out": 3
+            }
+        }
+    }
+}

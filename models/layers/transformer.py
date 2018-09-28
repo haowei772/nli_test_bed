@@ -22,7 +22,7 @@ class Transformer(nn.Module):
         self.layer_norm = cfg.layer_norm
 
     def forward(self, x):
-        a = self.attn(x)
+        a = self.attn(x)[0]
 
         if self.use_residual:
             a = x + a
@@ -77,6 +77,7 @@ class Conv1D(nn.Module):
     def forward(self, x):
         if self.rf == 1:
             size_out = x.size()[:-1] + (self.nf,)
+            x = x.contiguous()
             x = torch.addmm(self.b, x.view(-1, x.size(-1)), self.w)
             x = x.view(*size_out)
         else:
@@ -132,7 +133,7 @@ class AttentionMultiHead(nn.Module):
         a = self.merge_heads(a)
         a = self.c_proj(a)
         a = self.resid_dropout(a)
-        return a
+        return [a]
 
 
 class MLP(nn.Module):
