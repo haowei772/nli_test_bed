@@ -34,7 +34,7 @@
         "apply_weight_embed": true
     },
     "ARCHITECTURE": {
-        "name": "rnn",
+        "name": "transformer",
         "nx": 2,
         "structure": [
             "layer_1"
@@ -42,29 +42,31 @@
         "layers": {
             "layer_1": {
                 "h": {
-                    "name": "rnn",
+                    "name": "transformer",
                     "inputs": ["h"],
                     "outputs": [{"name":"h"}],
                     "config": {
-                        "rnn_cell": "lstm",
-                        "birnn": false,
-                        "n_layers": 1,
-                        "input_size": 100,
-                        "hidden_size": 100,
-                        "dp_ratio": 0.1
+                        "d_embed": 100,
+                        "use_residual": false,
+                        "layer_norm": false,
+                        "n_head": 5,
+                        "attn_pdrop": 0.1,
+                        "resid_pdrop": 0.1,
+                        "afn": "gelu"
                     }
                 },
                 "p": {
-                    "name": "rnn",
+                    "name": "transformer",
                     "inputs": ["p"],
                     "outputs": [{"name":"p"}],
                     "config": {
-                        "rnn_cell": "lstm",
-                        "birnn": false,
-                        "n_layers": 1,
-                        "input_size": 100,
-                        "hidden_size": 100,
-                        "dp_ratio": 0.1
+                        "d_embed": 100,
+                        "use_residual": false,
+                        "layer_norm": false,
+                        "n_head": 5,
+                        "attn_pdrop": 0.1,
+                        "resid_pdrop": 0.1,
+                        "afn": "gelu"
                     }
                 }
             }

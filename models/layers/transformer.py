@@ -8,129 +8,41 @@ import matplotlib.pyplot as plt
 
 from torch.nn.parameter import Parameter
 from time import gmtime, strftime
-# from utils.utils import draw
 from utils.model_utils import clones, draw
 
-class TransformerInterAttn(nn.Module):
-    def __init__(self, config):
-        super(TransformerInterAttn, self).__init__()
-        self.config = config
-        self.encoder = TransformerEncoder(self.config)
-        self.encoder_inter_attn = TransformerEncoderInterAttn(self.config)
-
-        self.init()
-    
-    def init(self):
-        for p in self.encoder.parameters():
-            if p.dim() > 1:
-                nn.init.xavier_uniform_(p)
-        
-        for p in self.encoder_inter_attn.parameters():
-            if p.dim() > 1:
-                nn.init.xavier_uniform_(p)
-    
-    def forward(self, x, y):
-
-        return self.encoder_inter_attn(y, x)
-
-
 class Transformer(nn.Module):
-    def __init__(self, config):
+    def __init__(self, cfg, scale=False):
         super(Transformer, self).__init__()
-        self.config = config
-        self.encoder = TransformerEncoder(self.config)
+        nx = cfg.d_embed
+        self.attn = AttentionMultiHead(cfg, scale)
+        self.ln_1 = LayerNorm(nx)
+        self.mlp = MLP(4 * nx, cfg)
+        self.ln_2 = LayerNorm(nx)
+        self.use_residual = cfg.use_residual
+        self.layer_norm = cfg.layer_norm
 
-        self.init()
-    
-    def init(self):
-        for p in self.encoder.parameters():
-            if p.dim() > 1:
-                nn.init.xavier_uniform_(p)
-    
-    def draw_self_attentions(self, x):
-        self.encoder.draw_self_attentions(x)
-    
     def forward(self, x):
+        a = self.attn(x)
 
-        return (self.encoder(x))
-    
+        if self.use_residual:
+            a = x + a
 
+        if self.layer_norm:
+            n = self.ln_1(a)
+        else:
+            n = a
 
+        m = self.mlp(n)
 
-class TransformerEncoderInterAttn(nn.Module):
-    def __init__(self, config):
-        super(TransformerEncoderInterAttn, self).__init__()
+        if self.use_residual:
+            m = n + m
 
-        self.config = config
+        if self.layer_norm:
+            h = self.ln_2(m)
+        else:
+            h = m
 
-        c = copy.deepcopy
-
-        block = BlockInterAttn(config, scale=True)
-
-        self.layers = clones(block, config.n_layers)
-    
-    def forward(self, x, y):
-        """
-        x: (batch_size, seq_len, embed_size)
-        y: (batch_size, seq_len, embed_size)
-        h: (batch_size, seq_len, embed_size)
-        """
-
-        h = x
-        for block in self.layers:
-            h = block(h, y)
-
-        return h
-
-
-class TransformerEncoder(nn.Module):
-    def __init__(self, config):
-        super(TransformerEncoder, self).__init__()
-
-        self.config = config
-
-        c = copy.deepcopy
-
-        block = Block(config, scale=True)
-
-        self.layers = clones(block, config.n_layers)
-    
-    def forward(self, x):
-        """
-        x: (batch_size, seq_len, embed_size)
-        h: (batch_size, seq_len, embed_size)
-        """
-        
-        h = x
-        for block in self.layers:
-            h = block(h)
-
-        return h
-    
-    def draw_self_attentions(self, sent):
-        for layer in range(len(self.layers)):
-            fig, axs = plt.subplots(1,self.config.n_head, figsize=(20, 10))
-            for h in range(self.config.n_head):
-                draw(self.layers[layer].attn.attn[0, h].data, 
-                    sent, sent if h ==0 else [], ax=axs[h])
-            fig.savefig(self.config.save_path + "/" + f"{strftime('%H:%M:%S', gmtime())}_self_attn_layer_{layer}.png")
-            plt.close(fig)
-
-
-
-def gelu(x):
-    return 0.5 * x * (1 + torch.tanh(math.sqrt(2 / math.pi) * (x + 0.044715 * torch.pow(x, 3))))
-
-
-def swish(x):
-    return x * torch.sigmoid(x)
-
-
-ACT_FNS = {
-    'relu': nn.ReLU,
-    'swish': swish,
-    'gelu': gelu
-}
+        return [h]
 
 
 class LayerNorm(nn.Module):
@@ -172,17 +84,16 @@ class Conv1D(nn.Module):
         return x
 
 
-class Attention(nn.Module):
-    def __init__(self, nx, cfg, scale=False):
-        super(Attention, self).__init__()
-        n_state = nx  # in Attention: n_state=768 (nx=d_embed)
-        # [switch nx => n_state from Block to Attention to keep identical to TF implem]
+class AttentionMultiHead(nn.Module):
+    def __init__(self, cfg, scale=False):
+        super(AttentionMultiHead, self).__init__()
+        n_state = cfg.d_embed
         assert n_state % cfg.n_head == 0
         self.n_head = cfg.n_head
         self.split_size = n_state
         self.scale = scale
-        self.c_attn = Conv1D(n_state * 3, 1, nx)
-        self.c_proj = Conv1D(n_state, 1, nx)
+        self.c_attn = Conv1D(n_state * 3, 1, n_state)
+        self.c_proj = Conv1D(n_state, 1, n_state)
         self.attn_dropout = nn.Dropout(cfg.attn_pdrop)
         self.resid_dropout = nn.Dropout(cfg.resid_pdrop)
         self.attn = None
@@ -210,7 +121,6 @@ class Attention(nn.Module):
             return x.permute(0, 2, 1, 3)
 
     def forward(self, query, key=None, value=None):
-
         if key is None or value is None:
             query = self.c_attn(query)
             query, key, value = query.split(self.split_size, dim=2)
@@ -240,83 +150,16 @@ class MLP(nn.Module):
         return self.dropout(h2)
 
 
-class Block(nn.Module):
-    def __init__(self, cfg, scale=False):
-        super(Block, self).__init__()
-        nx = cfg.d_embed
-        self.attn = Attention(nx, cfg, scale)
-        self.ln_1 = LayerNorm(nx)
-        self.mlp = MLP(4 * nx, cfg)
-        self.ln_2 = LayerNorm(nx)
-        self.use_residual = cfg.use_residual
-        self.layer_norm = cfg.layer_norm
-
-    def forward(self, x):
-        a = self.attn(x)
-
-        if self.use_residual:
-            a = x + a
-
-        if self.layer_norm:
-            n = self.ln_1(a)
-        else:
-            n = a
-
-        m = self.mlp(n)
-
-        if self.use_residual:
-            m = n + m
-
-        if self.layer_norm:
-            h = self.ln_2(m)
-        else:
-            h = m
-
-        return h
-
-class BlockInterAttn(nn.Module):
-    def __init__(self, cfg, scale=False):
-        super(BlockInterAttn, self).__init__()
-        nx = cfg.d_embed
-        self.attn = Attention(nx, cfg, scale)
-        self.attn_w_input = Attention(nx, cfg, scale)
-        self.ln_1 = LayerNorm(nx)
-        self.mlp = MLP(4 * nx, cfg)
-        self.ln_2 = LayerNorm(nx)
-        self.ln_3 = LayerNorm(nx)
-
-    def forward(self, x, y):
-        a1 = self.attn(x)
-        n1 = self.ln_1(x + a1)
-
-        a2 = self.attn_w_input(n1, y, y)
-        n2 = self.ln_2(n1 + a2)
-
-        m = self.mlp(n2)
-        h = self.ln_2(n2 + m)
-
-        return h
+def gelu(x):
+    return 0.5 * x * (1 + torch.tanh(math.sqrt(2 / math.pi) * (x + 0.044715 * torch.pow(x, 3))))
 
 
-class ClfHead(nn.Module):
-    """Classification Head for the transformer
+def swish(x):
+    return x * torch.sigmoid(x)
 
-    TODO: test this class."""
-    def __init__(self, clf_token, cfg, n_class):
-        super(ClfHead, self).__init__()
-        self.d_embed = cfg.d_embed
-        self.clf_token = clf_token
-        self.dropout = nn.Dropout(cfg.clf_pdrop)
-        self.linear = nn.Linear(cfg.d_embed, n_class)
 
-        nn.init.normal_(self.linear.weight, std = 0.02)
-        nn.init.normal_(self.linear.bias, 0)
-
-    def forward(self, h, x):
-        clf_h = h.view(-1, self.d_embed)
-        flat = x[..., 0].contiguous().view(-1)
-        clf_h = clf_h[flat == self.clf_token, :]
-        clf_h = self.dropout(clf_h)
-        clf_logits = self.linear(clf_h)
-
-        return clf_logits
+ACT_FNS = {
+    'relu': nn.ReLU,
+    'swish': swish,
+    'gelu': gelu
+}
