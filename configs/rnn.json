@@ -26,9 +26,9 @@
         "eps": 1e-6
     },
     "EMBEDDING": {
-        "word_vectors": "glove.6B.100d",
-        "vector_cache": ".vector_cache/input_vectors.pt",
-        "d_embed": 100,
+        "word_vectors": "glove.840B.300d",
+        "vector_cache": ".vector_cache/input_vectors_300d.pt",
+        "d_embed": 300,
         "train_embed": true,
         "positional_encoding": false,
         "apply_weight_embed": true
@@ -49,8 +49,8 @@
                         "rnn_cell": "lstm",
                         "birnn": false,
                         "n_layers": 1,
-                        "input_size": 100,
-                        "hidden_size": 100,
+                        "input_size": 300,
+                        "hidden_size": 300,
                         "dp_ratio": 0.1
                     }
                 },
@@ -62,8 +62,8 @@
                         "rnn_cell": "lstm",
                         "birnn": false,
                         "n_layers": 1,
-                        "input_size": 100,
-                        "hidden_size": 100,
+                        "input_size": 300,
+                        "hidden_size": 300,
                         "dp_ratio": 0.1
                     }
                 }
@@ -91,7 +91,7 @@
             "outputs": [{"name":"scores"}],
             "config": {
                 "dp_ratio": 0.1,
-                "d_hidden": 100,
+                "d_hidden": 300,
                 "d_out": 3
             }
         }
