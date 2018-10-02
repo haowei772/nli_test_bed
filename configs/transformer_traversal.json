@@ -1,0 +1,88 @@
+{
+    "MISC": {
+        "print_every_n_batch": 100,
+        "eval_every_n_batch": 100,
+        "save_model": true,
+        "save_path": "results",
+        "restore_model": false,
+        "restore_path": "results/best_snapshot_rnn__20180926-050158_acc_71.42__iter_1_model.pt",
+        "log_path": "runs"
+    },
+    "DATA": {
+        "dataset": "snli",
+        "tokenize": false,
+        "max_len": 500
+    },
+    "TRAIN" : {
+        "mode": "train",
+        "seed": 42,
+        "gpu": 0,
+        "epochs": 50,
+        "lr": 0.0001,
+        "batch_size": 128,
+        "criterion": "cross_entropy_loss",
+        "optimizer": "adam_openai",
+        "loss_compute": "simple_loss_compute",
+        "eps": 1e-6,
+        "e": 1e-6,
+        "lr_schedule": "warmup_linear",
+        "lr_warmup": 0.002,
+        "b1": 0.9,
+        "b2": 0.999,
+        "l2": 0.01,
+        "vector_l2": "store_true",
+        "max_grad_norm": 1
+    },
+    "EMBEDDING": {
+        "word_vectors": "glove.6B.100d",
+        "vector_cache": ".vector_cache/input_vectors.pt",
+        "d_embed": 100,
+        "train_embed": false,
+        "positional_encoding": true,
+        "dropout_pe": 0.1,
+        "apply_weight_embed": true
+    },
+    "ARCHITECTURE": {
+        "traversal": true,
+        "name": "transformer_traversal",
+        "nx": 2,
+        "structure": [
+            "layer_1"
+        ],
+        "layers": {
+            "layer_1": {
+                "name": "transformer",
+                "inputs": ["pdh"],
+                "outputs": [{"name":"pdh"}],
+                "config": {
+                    "d_embed": 100,
+                    "use_residual": false,
+                    "layer_norm": false,
+                    "n_head": 5,
+                    "attn_pdrop": 0.1,
+                    "resid_pdrop": 0.1,
+                    "afn": "gelu"
+                }
+
+            }
+        },
+        "reducer":{
+            "name": "mean",
+            "inputs": ["pdh"],
+            "outputs": [{"name": "pdh_reduced"}],
+            "config": {},
+            "share": true
+        },
+        "aggregator": {
+            "name": "linear_aggregate",
+            "inputs": ["pdh_reduced"],
+            "outputs": [{"name":"scores"}],
+            "config": {
+                "dp_ratio": 0.1,
+                "d_hidden": 100,
+                "d_out": 3,
+                "para_init": 0.01
+            }
+        }
+    }
+}

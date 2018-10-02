@@ -4,6 +4,7 @@ import time
 from argparse import ArgumentParser
 from pprint import pprint
 from models.model import Model
+from models.model_traversal import ModelTraversal
 from datasets import datasets
 from criteria import criteria
 from optimizers import optimizers
@@ -18,7 +19,11 @@ class dotdict(dict):
 def get_model(config, vocab):
 	""" return model object
 	"""
-	return Model(config, vocab)
+	traversal = config.get("traversal", False)
+	if traversal:
+		return ModelTraversal(config, vocab)
+	else:
+		return Model(config, vocab)
 	# if not config.model:
 	# 	raise NotImplementedError("'model' not defined in config")
 

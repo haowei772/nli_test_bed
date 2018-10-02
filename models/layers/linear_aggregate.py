@@ -37,6 +37,10 @@ class LinearAggregate(nn.Module):
                 m.weight.data.normal_(0, self.para_init)
                 m.bias.data.normal_(0, self.para_init)
 
-    def forward(self, x, y):
+    def forward(self, x, y=None):
+
+        if y is None:
+            y = x 
+
         x_and_y = torch.cat([x,y,x-y,x*y],-1)
         return [self.aggregator(x_and_y)]
