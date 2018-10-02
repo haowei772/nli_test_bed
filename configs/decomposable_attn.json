@@ -26,7 +26,7 @@
         "eps": 1e-6
     },
     "EMBEDDING": {
-        "word_vectors": "glove.6b.300d",
+        "word_vectors": "glove.6b.100d",
         "vector_cache": ".vector_cache/input_vectors.pt",
         "d_embed": 100,
         "train_embed": true,
@@ -37,48 +37,40 @@
         "name": "rnn",
         "nx": 2,
         "structure": [
-            "layer_1"
+            "layer_1",
+            "layer_2"
         ],
         "layers": {
             "layer_1": {
-                "h": {
-                    "name": "rnn",
-                    "inputs": ["h"],
-                    "outputs": [{"name":"h"}],
-                    "config": {
-                        "rnn_cell": "lstm",
-                        "birnn": false,
-                        "n_layers": 1,
-                        "input_size": 100,
-                        "hidden_size": 100,
-                        "dp_ratio": 0.1
-                    }
-                },
-                "p": {
-                    "name": "rnn",
-                    "inputs": ["p"],
-                    "outputs": [{"name":"p"}],
-                    "config": {
-                        "rnn_cell": "lstm",
-                        "birnn": false,
-                        "n_layers": 1,
-                        "input_size": 100,
-                        "hidden_size": 100,
-                        "dp_ratio": 0.1
-                    }
+                "name": "decomposable_encoder",
+                "inputs": ["h", "p"],
+                "outputs": [{"name":"h"}, {"name":"p"}],
+                "config": {
+                    "hidden_size": 100,
+                    "para_init": 0.01,
+                    "d_embed": 100
+                }
+            },
+            "layer_2": {
+                "name": "decomposable_attn",
+                "inputs": ["h", "p"],
+                "outputs": [{"name":"h"}, {"name":"p"}],
+                "config": {
+                    "hidden_size": 100,
+                    "para_init": 0.01
                 }
             }
         },
         "reducer":{
             "h": {
-                "name": "mean",
+                "name": "sum",
                 "inputs": ["h"],
                 "outputs": [{"name": "h_reduced"}],
                 "config": {},
                 "share": true
             },
             "p": {
-                "name": "mean",
+                "name": "sum",
                 "inputs": ["p"],
                 "outputs": [{"name": "p_reduced"}],
                 "config": {},
@@ -92,7 +84,8 @@
             "config": {
                 "dp_ratio": 0.1,
                 "d_hidden": 100,
-                "d_out": 3
+                "d_out": 3,
+                "para_init": 0.01
             }
         }
     }

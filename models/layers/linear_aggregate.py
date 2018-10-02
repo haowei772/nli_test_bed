@@ -9,6 +9,7 @@ class LinearAggregate(nn.Module):
 
         self.dropout = nn.Dropout(p=config.dp_ratio)
         self.relu = nn.ReLU()
+        self.para_init = config.para_init
 
         seq_in_size = 4*config.d_hidden
 
@@ -25,6 +26,16 @@ class LinearAggregate(nn.Module):
             self.relu,
             self.dropout,
             Linear(seq_in_size, config.d_out))
+        
+        self.init_params()
+    
+    def init_params(self):
+        '''initialize parameters'''
+        for m in self.modules():
+            # print m
+            if isinstance(m, nn.Linear):
+                m.weight.data.normal_(0, self.para_init)
+                m.bias.data.normal_(0, self.para_init)
 
     def forward(self, x, y):
         x_and_y = torch.cat([x,y,x-y,x*y],-1)

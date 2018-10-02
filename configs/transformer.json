@@ -34,11 +34,12 @@
         "max_grad_norm": 1
     },
     "EMBEDDING": {
-        "word_vectors": "glove.6B.100d",
-        "vector_cache": ".vector_cache/input_vectors.pt",
-        "d_embed": 100,
+        "word_vectors": "glove.840B.300d",
+        "vector_cache": ".vector_cache/input_vectors_300d.pt",
+        "d_embed": 300,
         "train_embed": true,
-        "positional_encoding": false,
+        "positional_encoding": true,
+        "dropout_pe": 0.1,
         "apply_weight_embed": true
     },
     "ARCHITECTURE": {
