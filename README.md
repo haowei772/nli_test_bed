@@ -1,4 +1,5 @@
 # Natural Language Inference Test Bed
+---------------------
 This is a testbed for comparing various deep learning models in the context of Natural Language Inference (NLI) implemented in [PyTorch](http://pytorch.org).
 
 Below is the general architecture used:
@@ -6,7 +7,7 @@ Below is the general architecture used:
 ![Natural Language Inference](assets/nli_test_bed_arch.png)
 
 # Usage
-
+---------------------
 First create a virtualenv and install the requirements:
 
     pip install -r requirements.txt
@@ -18,7 +19,11 @@ Then you can run the model:
 
 `MODE` is one of the `train`, `test`, or `interactive`. `CONFIG_FILE` is the path to the config file.
 
+We use Tensorboard to visualize the all the curves:
+    tensorboard --logdir [RUN_PATH]
+
 ## Test
+---------------------
 Example:
 
     python run.py test configs/rnn_attn.json
@@ -26,6 +31,7 @@ Example:
 make sure `restore_model` is set to true and a valid model is provided in `restore_path`.
 
 ## Interactive
+---------------------
 Example:
 
     python run.py interactive configs/rnn_attn.json
@@ -34,6 +40,7 @@ make sure `restore_model` is set to true and a valid model is provided in `resto
 
 
 ## Design a model
+---------------------
 Models are designed in `ARCHITECTURE` section of the config file. Below are its main components:
 
 `name`: name of the model. Results are saved with this name.
@@ -49,6 +56,7 @@ Models are designed in `ARCHITECTURE` section of the config file. Below are its 
 `aggregator`: this model gets the encoded premise and encoded hypothesis and gives the final classification scores.
 
 ### Define a layer
+---------------------
 There is a `vector` dictionary which is passed into any layer/module and contains all the arrays up to that point. Therefor all the inputs for a specific layer are taken from this dictionary and then the outputs of that layer are used to update the dictionary.
 
 Each layer can have any number of inputs and any number of outputs. We define these inputs and outputs when we are defining a layer.
@@ -142,7 +150,9 @@ The other type is for the cases that you model takes both `p` and `h` or probabl
 
 
 # Acknowledgment
+---------------------
 - https://github.com/harvardnlp/annotated-transformer
 - https://github.com/pytorch/examples/tree/master/snli
 - https://github.com/galsang/BIMPM-pytorch
 - https://github.com/huggingface/pytorch-openai-transformer-lm
+- https://github.com/libowen2121/SNLI-decomposable-attention
