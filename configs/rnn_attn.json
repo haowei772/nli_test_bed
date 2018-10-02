@@ -125,7 +125,8 @@
             "config": {
                 "dp_ratio": 0.1,
                 "d_hidden": 100,
-                "d_out": 3
+                "d_out": 3,
+                "para_init": 0.01
             }
         }
     }

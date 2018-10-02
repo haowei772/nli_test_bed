@@ -26,7 +26,7 @@
         "eps": 1e-6
     },
     "EMBEDDING": {
-        "word_vectors": "glove.6b.300d",
+        "word_vectors": "glove.6b.100d",
         "vector_cache": ".vector_cache/input_vectors.pt",
         "d_embed": 100,
         "train_embed": true,
@@ -92,7 +92,8 @@
             "config": {
                 "dp_ratio": 0.1,
                 "d_hidden": 100,
-                "d_out": 3
+                "d_out": 3,
+                "para_init": 0.01
             }
         }
     }
