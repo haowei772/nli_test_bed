@@ -7,6 +7,7 @@ from .last_layer import LastLayer
 from .linear_aggregate import LinearAggregate
 from .decomposable_attn import DecomposableAttn
 from .decomposable_encoder import DecomposableEncoder
+from .bimpm import BIMPM
 
 layers = {
     "attention_vanilla": AttentionVanilla,
@@ -18,5 +19,6 @@ layers = {
     'mean': Mean,
     'sum': Sum,
     'last_layer': LastLayer,
-    'linear_aggregate': LinearAggregate
+    'linear_aggregate': LinearAggregate,
+    'bimpm': BIMPM
 }
