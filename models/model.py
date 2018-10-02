@@ -110,7 +110,9 @@ class Model(nn.Module):
 
 
         # ----- aggregator ----- 
-        self.aggregate = layers[self.config.aggregator["name"]](dotdict(self.config.aggregator["config"]))
+        self.aggregate = None
+        if self.config.aggregator:
+            self.aggregate = layers[self.config.aggregator["name"]](dotdict(self.config.aggregator["config"]))
 
 
     def update(self, vectors, layer, layer_info):
@@ -193,15 +195,17 @@ class Model(nn.Module):
         #####################
         # ----- reducer -----
         #####################
-        self.update(vectors, self.h_reduce, self.config.reducer["h"])
-        self.update(vectors, self.p_reduce, self.config.reducer["p"])
+        if self.h_reduce is not None and self.p_reduce is not None:
+            self.update(vectors, self.h_reduce, self.config.reducer["h"])
+            self.update(vectors, self.p_reduce, self.config.reducer["p"])
 
 
 
         ########################
         # ----- aggregator -----
         ########################
-        self.update(vectors, self.aggregate, self.config.aggregator)
+        if self.aggregate is not None:
+            self.update(vectors, self.aggregate, self.config.aggregator)
 
 
         ########################
