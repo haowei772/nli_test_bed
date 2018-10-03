@@ -19,16 +19,16 @@
         "gpu": 0,
         "epochs": 50,
         "lr": 0.001,
-        "batch_size": 128,
+        "batch_size": 64,
         "criterion": "cross_entropy_loss",
         "optimizer": "adam",
         "loss_compute": "simple_loss_compute",
         "eps": 1e-6
     },
     "EMBEDDING": {
-        "word_vectors": "glove.6b.100d",
-        "vector_cache": ".vector_cache/input_vectors.pt",
-        "d_embed": 100,
+        "word_vectors": "glove.840B.300d",
+        "vector_cache": ".vector_cache/input_vectors_300d.pt",
+        "d_embed": 300,
         "train_embed": true,
         "positional_encoding": false,
         "apply_weight_embed": true
@@ -49,7 +49,7 @@
                         "rnn_cell": "lstm",
                         "birnn": false,
                         "n_layers": 1,
-                        "input_size": 100,
+                        "input_size": 300,
                         "hidden_size": 100,
                         "dp_ratio": 0.1
                     }
@@ -62,7 +62,7 @@
                         "rnn_cell": "lstm",
                         "birnn": false,
                         "n_layers": 1,
-                        "input_size": 100,
+                        "input_size": 300,
                         "hidden_size": 100,
                         "dp_ratio": 0.1
                     }
@@ -71,14 +71,14 @@
         },
         "reducer":{
             "h": {
-                "name": "mean",
+                "name": "last_layer",
                 "inputs": ["h"],
                 "outputs": [{"name": "h_reduced"}],
                 "config": {},
                 "share": true
             },
             "p": {
-                "name": "mean",
+                "name": "last_layer",
                 "inputs": ["p"],
                 "outputs": [{"name": "p_reduced"}],
                 "config": {},
