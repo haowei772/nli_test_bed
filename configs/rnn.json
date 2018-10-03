@@ -47,10 +47,10 @@
                     "outputs": [{"name":"h"}],
                     "config": {
                         "rnn_cell": "lstm",
-                        "birnn": false,
+                        "birnn": true,
                         "n_layers": 1,
                         "input_size": 300,
-                        "hidden_size": 100,
+                        "hidden_size": 150,
                         "dp_ratio": 0.1
                     }
                 },
@@ -60,10 +60,10 @@
                     "outputs": [{"name":"p"}],
                     "config": {
                         "rnn_cell": "lstm",
-                        "birnn": false,
+                        "birnn": true,
                         "n_layers": 1,
                         "input_size": 300,
-                        "hidden_size": 100,
+                        "hidden_size": 150,
                         "dp_ratio": 0.1
                     }
                 }
@@ -91,7 +91,7 @@
             "outputs": [{"name":"scores"}],
             "config": {
                 "dp_ratio": 0.1,
-                "d_hidden": 100,
+                "d_hidden": 300,
                 "d_out": 3,
                 "para_init": 0.01
             }

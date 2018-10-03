@@ -7,5 +7,5 @@ class LastLayer(nn.Module):
         pass
     
     def forward(self, input):
-        output = input[..., -1]
+        output = input[:,-1,:]
         return [output]
