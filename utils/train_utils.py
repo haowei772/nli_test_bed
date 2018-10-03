@@ -101,7 +101,7 @@ def run_epoch(logger, config, epoch, data, data_iter, model, loss_compute, devic
     acc /= size
     acc = acc.cpu().data[0]
 
-    logger.add_scalar(f"loss/{mode}", total_loss, epoch)
+    logger.add_scalar(f"loss/{mode}", loss, epoch)
     logger.add_scalar(f"acc/{mode}", acc, epoch)
 
     
