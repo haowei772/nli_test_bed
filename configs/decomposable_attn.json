@@ -26,10 +26,10 @@
         "eps": 1e-6
     },
     "EMBEDDING": {
-        "word_vectors": "glove.6b.100d",
-        "vector_cache": ".vector_cache/input_vectors.pt",
-        "d_embed": 100,
-        "train_embed": true,
+        "word_vectors": "glove.840B.300d",
+        "vector_cache": ".vector_cache/input_vectors_300d.pt",
+        "d_embed": 300,
+        "train_embed": false,
         "positional_encoding": false,
         "apply_weight_embed": true
     },
@@ -46,9 +46,9 @@
                 "inputs": ["h", "p"],
                 "outputs": [{"name":"h"}, {"name":"p"}],
                 "config": {
-                    "hidden_size": 100,
+                    "hidden_size": 300,
                     "para_init": 0.01,
-                    "d_embed": 100
+                    "d_embed": 300
                 }
             },
             "layer_2": {
@@ -56,7 +56,7 @@
                 "inputs": ["h", "p"],
                 "outputs": [{"name":"h"}, {"name":"p"}],
                 "config": {
-                    "hidden_size": 100,
+                    "hidden_size": 300,
                     "para_init": 0.01
                 }
             }
@@ -83,7 +83,7 @@
             "outputs": [{"name":"scores"}],
             "config": {
                 "dp_ratio": 0.1,
-                "d_hidden": 100,
+                "d_hidden": 300,
                 "d_out": 3,
                 "para_init": 0.01
             }

@@ -17,19 +17,19 @@
         "mode": "train",
         "seed": 42,
         "gpu": 0,
-        "epochs": 50,
-        "lr": 0.001,
-        "batch_size": 128,
+        "epochs": 1000,
+        "lr": 0.0005,
+        "batch_size": 64,
         "criterion": "cross_entropy_loss",
         "optimizer": "adam",
         "loss_compute": "simple_loss_compute",
         "eps": 1e-6
     },
     "EMBEDDING": {
-        "word_vectors": "glove.6B.100d",
-        "vector_cache": ".vector_cache/input_vectors.pt",
-        "d_embed": 100,
-        "train_embed": true,
+        "word_vectors": "glove.840B.300d",
+        "vector_cache": ".vector_cache/input_vectors_300d.pt",
+        "d_embed": 300,
+        "train_embed": false,
         "positional_encoding": false,
         "apply_weight_embed": true
     },
@@ -47,10 +47,10 @@
                     "outputs": [{"name":"h"}],
                     "config": {
                         "rnn_cell": "lstm",
-                        "birnn": false,
+                        "birnn": true,
                         "n_layers": 1,
-                        "input_size": 100,
-                        "hidden_size": 100,
+                        "input_size": 300,
+                        "hidden_size": 150,
                         "dp_ratio": 0.1
                     },
                     "share": true
@@ -61,10 +61,10 @@
                     "outputs": [{"name":"p"}],
                     "config": {
                         "rnn_cell": "lstm",
-                        "birnn": false,
+                        "birnn": true,
                         "n_layers": 1,
-                        "input_size": 100,
-                        "hidden_size": 100,
+                        "input_size": 300,
+                        "hidden_size": 150,
                         "dp_ratio": 0.1
                     },
                     "share": true
@@ -93,7 +93,7 @@
             "outputs": [{"name":"scores"}],
             "config": {
                 "dp_ratio": 0.1,
-                "d_hidden": 100,
+                "d_hidden": 300,
                 "d_out": 3,
                 "para_init": 0.01
             }

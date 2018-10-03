@@ -34,10 +34,10 @@
         "max_grad_norm": 1
     },
     "EMBEDDING": {
-        "word_vectors": "glove.6B.100d",
-        "vector_cache": ".vector_cache/input_vectors.pt",
-        "d_embed": 100,
-        "train_embed": true,
+        "word_vectors": "glove.840B.300d",
+        "vector_cache": ".vector_cache/input_vectors_300d.pt",
+        "d_embed": 300,
+        "train_embed": false,
         "positional_encoding": false,
         "apply_weight_embed": true
     },
@@ -54,7 +54,7 @@
                     "inputs": ["h"],
                     "outputs": [{"name":"h"}],
                     "config": {
-                        "d_embed": 100,
+                        "d_embed": 300,
                         "use_residual": false,
                         "layer_norm": false,
                         "n_head": 5,
@@ -67,7 +67,7 @@
                     "inputs": ["p"],
                     "outputs": [{"name":"p"}],
                     "config": {
-                        "d_embed": 100,
+                        "d_embed": 300,
                         "use_residual": false,
                         "layer_norm": false,
                         "n_head": 5,
@@ -99,7 +99,7 @@
             "outputs": [{"name":"scores"}],
             "config": {
                 "dp_ratio": 0.1,
-                "d_hidden": 100,
+                "d_hidden": 300,
                 "d_out": 3,
                 "para_init": 0.01
             }

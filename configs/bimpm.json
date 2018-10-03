@@ -26,9 +26,9 @@
         "eps": 1e-6
     },
     "EMBEDDING": {
-        "word_vectors": "glove.6b.100d",
-        "vector_cache": ".vector_cache/input_vectors.pt",
-        "d_embed": 100,
+        "word_vectors": "glove.840b.300d",
+        "vector_cache": ".vector_cache/input_vectors_300d.pt",
+        "d_embed": 300,
         "train_embed": true,
         "positional_encoding": false,
         "apply_weight_embed": true
@@ -45,10 +45,10 @@
                 "inputs": ["p","h"],
                 "outputs": [{"name":"scores"}],
                 "config": {
-                    "d_embed": 100,
+                    "d_embed": 300,
                     "num_perspective": 10,
                     "rnn_cell": "lstm",
-                    "hidden_size": 100,
+                    "hidden_size": 300,
                     "dropout": 0.1,
                     "class_size": 3
                 }
