@@ -63,14 +63,14 @@ def main():
 
             # ----- train -----
             model.train()
-            run_epoch(logger, config, i, data.train_iter, model, loss_compute, 
-                device, mode='train')
+            run_epoch(logger, config, i, data, data.train_iter, model, 
+                loss_compute, device, mode='train', save_misclassified=False)
 
             # ----- dev -----
             model.eval()
             with torch.no_grad():
-                dev_acc, dev_loss = run_epoch(logger, config, i, data.dev_iter, 
-                    model, loss_compute_dev, device, mode='dev')
+                dev_acc, dev_loss = run_epoch(logger, config, i, data, data.dev_iter, 
+                    model, loss_compute_dev, device, mode='dev', save_misclassified=False)
                 if dev_acc > best_dev_acc:
                     best_dev_acc = dev_acc
                     if config.save_model:
@@ -78,8 +78,8 @@ def main():
             
             # ----- test -----
             with torch.no_grad():
-                run_epoch(logger, config, i, data.test_iter, 
-                    model, loss_compute_dev, device, mode='test')
+                run_epoch(logger, config, i, data, data.test_iter, 
+                    model, loss_compute_dev, device, mode='test', save_misclassified=True)
 
     
     # ----- test mode -----
@@ -87,8 +87,8 @@ def main():
         print("Testing")
         model.eval()
         with torch.no_grad():
-            test_acc, test_loss = run_epoch(logger, config, 0, data.test_iter, 
-                model, loss_compute_dev, device, mode='test')
+            test_acc, test_loss = run_epoch(logger, config, 0, data, 
+                data.test_iter,model, loss_compute_dev, device, mode='test', save_misclassified=True)
             print("Test loss: ", test_loss)
             print("Test acc: ", test_acc)
     

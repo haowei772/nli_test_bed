@@ -5,6 +5,7 @@ import torch
 import glob
 import numpy as np
 from tqdm import tqdm
+from itertools import compress
 
 def save_model(model, config, acc, iterations):
     snapshot_prefix = os.path.join(config.save_path, 'best_snapshot')
@@ -54,37 +55,54 @@ def set_seed(config):
     torch.cuda.manual_seed_all(config.seed)
 
 
-def run_epoch(logger, config, epoch, data_iter, model, loss_compute, device, mode='train'):
+def run_epoch(logger, config, epoch, data, data_iter, model, loss_compute, device, mode='train', save_misclassified=False):
     """ Training function
     """
     start = time.time()
-    total_loss, n_correct, n_total = 0, 0, 0
+    loss, acc, size = 0, 0, 0
     data_iter.init_epoch()
 
+    premise_wrong = []
+    hypothesis_wrong = []
+    correct_labels = []
+    
     for i, batch in enumerate(tqdm(data_iter)):
 
         # ----- forward pass ----- 
         out = model(batch)
 
         # ----- loss compute and backprop ----- 
-        loss = loss_compute(out, batch)
-        total_loss += loss.item()
+        batch_loss = loss_compute(out, batch)
+        loss += batch_loss.item()
 
         # ----- accuracy ----- 
-        n_correct += (torch.max(out, 1)[1].view(batch.label.size()) == batch.label).sum().item()
-        n_total += batch.batch_size
-        acc = 100. * n_correct/n_total
+        _, pred = out.max(dim=1)
+        res = (pred == batch.label)
+        acc += (res).sum().float()
+        size += len(pred)
 
+        # ----- get misclassified samples -----
+        # TODO: save it!
+        if save_misclassified:
+            res_not = (pred != batch.label)
+            res_data = res_not.cpu().data.numpy().tolist()
+            p_text = data.TEXT.reverse(batch.premise.data)
+            h_text = data.TEXT.reverse(batch.hypothesis.data)
+
+            premise_wrong.extend(list(compress(p_text, res_data)))
+            hypothesis_wrong.extend(list(compress(h_text, res_data)))
+            correct_labels.extend(batch.label.cpu().data.numpy().tolist())
         
-        del loss, out
+        del batch_loss, out, pred
 
 
     elapsed = time.time() - start
-    acc_total = n_correct/n_total*100
-    loss = total_loss/len(data_iter)
 
-    logger.add_scalar(f"loss/{mode}", loss, epoch * len(data_iter) + i)
-    logger.add_scalar(f"acc/{mode}", acc_total, epoch * len(data_iter) + i)
+    acc /= size
+    acc = acc.cpu().data[0]
+
+    logger.add_scalar(f"loss/{mode}", total_loss, epoch)
+    logger.add_scalar(f"acc/{mode}", acc, epoch)
 
     
     return acc_total, loss
