@@ -147,6 +147,16 @@ The other type is for the cases that you model takes both `p` and `h` or probabl
 }
 ```
 
+## Results
+---------------------
+Model/Config | Max Dev Acc | Test Acc At Max Dev 
+------------ | ------------ | -------------
+transformer.json | 
+rnn.json | 
+rnn_siamese.json |
+rnn_transformer.json |
+decomposoable_attn.json |
+bimpm.json |
 
 
 # Acknowledgment
