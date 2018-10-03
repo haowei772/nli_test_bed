@@ -24,6 +24,13 @@ def restore_model(model, path, device):
         raise FileNotFoundError("model restore path not found")
     model.load_state_dict(torch.load(path, map_location=device))
 
+def save_misclassified_samples(misclassified_samples, path):
+    make_path(path)
+    with open(path, 'w') as csvfile:
+        csv_out=csv.writer(csvfile)
+        for row in misclassified_samples:
+            csv_out.writerow(row)
+
 
 def make_path(f):
     d = os.path.dirname(f)
@@ -65,6 +72,7 @@ def run_epoch(logger, config, epoch, data, data_iter, model, loss_compute, devic
     premise_wrong = []
     hypothesis_wrong = []
     correct_labels = []
+    wrong_labels = []
     
     for i, batch in enumerate(tqdm(data_iter)):
 
@@ -92,6 +100,7 @@ def run_epoch(logger, config, epoch, data, data_iter, model, loss_compute, devic
             premise_wrong.extend(list(compress(p_text, res_data)))
             hypothesis_wrong.extend(list(compress(h_text, res_data)))
             correct_labels.extend(batch.label.cpu().data.numpy().tolist())
+            wrong_labels.extend(pred.cpu().data.numpy().tolist())
         
         del batch_loss, out, pred
 
@@ -104,5 +113,11 @@ def run_epoch(logger, config, epoch, data, data_iter, model, loss_compute, devic
     logger.add_scalar(f"loss/{mode}", loss, epoch)
     logger.add_scalar(f"acc/{mode}", acc, epoch)
 
+    if save_misclassified:
+        save_misclassified_sampleslist(
+            zip(premise_wrong, hypothesis_wrong, correct_labels, wrong_labels),
+            config.run_name + "_misclassified.csv"
+            )
+
     
-    return acc_total, loss
+    return acc, loss
