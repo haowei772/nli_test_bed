@@ -114,8 +114,8 @@ def run_epoch(logger, config, epoch, data, data_iter, model, loss_compute, devic
     logger.add_scalar(f"acc/{mode}", acc, epoch)
 
     if save_misclassified:
-        save_misclassified_sampleslist(
-            zip(premise_wrong, hypothesis_wrong, correct_labels, wrong_labels),
+        save_misclassified_samples(
+            list(zip(premise_wrong, hypothesis_wrong, correct_labels, wrong_labels)),
             config.run_name + "_misclassified.csv"
             )
 
