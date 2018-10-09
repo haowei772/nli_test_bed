@@ -149,15 +149,16 @@ The other type is for the cases that you model takes both `p` and `h` or probabl
 
 ## Results
 ---------------------
+Performed on NVIDIA k80 GPU.
+
 Model/Config | Max Dev Acc | Test Acc At Max Dev 
 ------------ | ------------ | -------------
-transformer.json | 
-rnn.json | 
-rnn_siamese.json |
-rnn_transformer.json |
-decomposoable_attn.json |
-bimpm.json |
+transformer.json | 76.23% | 75.45%
+rnn.json | 73.72% | 73.32%
+rnn_siamese.json | 81.26% | 80.55%
+bimpm.json* | 83.41% | 83.33%
 
+* BIMPM does not have the character encoding and some configs are different.
 
 # Acknowledgment
 ---------------------
